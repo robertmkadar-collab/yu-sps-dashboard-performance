@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -73,7 +74,7 @@
   .pagerail button.active{background:var(--violet-700);color:#fff;border-color:var(--violet-700);box-shadow:0 0 0 3px var(--violet-100)}
 
   .topbar{
-    display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:14px;
+    display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;
     padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
   }
   .brand{display:flex;align-items:center;gap:14px}
@@ -85,12 +86,6 @@
   .brand .lockup{line-height:1.05}
   .brand .lockup .nyu{font-family:"Fraunces",serif;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--violet-700)}
   .brand .lockup .sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:2px;font-weight:500}
-
-  .pill{
-    background:#FFF4D9;border:1px solid #F1D699;border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;
-  }
-  .pill .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#8a6500;font-weight:600}
-  .pill .val{font-family:"JetBrains Mono",monospace;font-size:14px;color:#5a4500;font-weight:600}
 
   .dateblock{display:flex;align-items:center;gap:8px;background:var(--violet-050);border:1px solid var(--violet-200);border-radius:10px;padding:6px 10px}
   .dateblock .sel{display:flex;flex-direction:column;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s}
@@ -161,16 +156,6 @@
   }
   .datepop .acts button.apply{background:var(--violet-700);color:#fff;border-color:var(--violet-700)}
 
-  /* App Multiplier popup */
-  .multpop{
-    position:absolute;top:calc(100% + 8px);left:0;min-width:220px;
-    background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);
-    padding:10px;z-index:50;display:none;
-  }
-  .multpop.open{display:block}
-  .multpop label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:600;display:block;margin-bottom:4px}
-  .multpop input{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;font-size:13px}
-
   /* KPI block */
   .grid-main{display:grid;grid-template-columns:240px 1fr 1fr;gap:14px;margin-top:14px}
   .sparkcol{display:flex;flex-direction:column;gap:10px}
@@ -191,37 +176,87 @@
 
   .kpiframe{
     background:linear-gradient(180deg, var(--violet-700) 0%, var(--violet-800) 100%);
-    border-radius:14px;padding:14px;box-shadow:var(--shadow);
+    border-radius:14px;padding:18px 16px 16px;box-shadow:var(--shadow);
     position:relative;
+    display:flex;flex-direction:column;
   }
   .kpiframe::after{
-    content:"OVERALL";
-    position:absolute;top:8px;right:14px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.5);
+    content:"";
   }
-  .dimrow{display:flex;justify-content:flex-start;margin-bottom:10px;position:relative}
-  .dim-select{
-    background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--violet-700);font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;
-  }
-  .dim-select .caret{color:var(--violet-500);font-size:10px}
-  .dim-pop{
-    position:absolute;top:calc(100% + 6px);left:0;min-width:200px;background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);padding:6px;z-index:50;display:none;
-  }
-  .dim-pop.open{display:block}
-  .dim-pop button{
-    display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;font:inherit;font-size:13px;padding:6px 8px;border-radius:6px;color:var(--ink-2);cursor:pointer;
-  }
-  .dim-pop button:hover{background:var(--violet-050)}
-  .dim-pop button.active{background:var(--violet-050);color:var(--violet-700);font-weight:600}
-  .dim-pop button .check{width:14px;color:var(--violet-700)}
+  .kpiframe-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding:2px 4px 0;flex:0 0 auto}
+  .kpiframe-head .eyebrow{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.85);font-weight:600;text-transform:uppercase}
+  .kpiframe-head .eyebrow-meta{font-family:"Fraunces",serif;font-style:italic;font-size:11px;color:rgba(255,255,255,.6)}
 
-  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .kpi{
-    background:#fff;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;text-align:center;
+  .kpis{
+    flex:1 1 auto;
+    display:flex;flex-direction:column;gap:6px;
   }
-  .kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--violet-700);font-weight:600}
-  .kpi .v{font-family:"Fraunces",serif;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
-  .kpi.spend{grid-column:span 2}
-  .kpi.spend .v{font-size:28px}
+  .kpi{
+    flex:1 1 0;min-height:0;
+    background:rgba(255,255,255,.97);border-radius:9px;
+    padding:10px 14px;
+    display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;
+  }
+  .kpi .k{
+    font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--violet-700);font-weight:700;
+    grid-column:1;grid-row:1;align-self:end;
+  }
+  .kpi .v{
+    font-family:"Fraunces",serif;font-weight:600;letter-spacing:-.02em;color:var(--ink);
+    font-size:26px;line-height:1;
+    grid-column:1;grid-row:2;align-self:start;
+    font-variant-numeric:tabular-nums;
+  }
+  .kpi .delta{
+    grid-column:2;grid-row:1/3;align-self:center;
+    display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+    font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;
+  }
+  .kpi .delta .pct{display:flex;align-items:center;gap:3px}
+  .kpi .delta .pct.up{color:var(--good)}
+  .kpi .delta .pct.down{color:var(--bad)}
+  .kpi .delta .pct.flat{color:var(--ink-3)}
+  .kpi .delta .label{font-family:"Inter Tight",sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:600}
+  .kpi.primary{
+    background:linear-gradient(180deg, #FFFFFF 0%, #F8F3FC 100%);
+    border:1px solid rgba(255,255,255,.4);
+    flex:1.5 1 0;
+  }
+  .kpi.primary .k{color:var(--violet-800);font-size:11px}
+  .kpi.primary .v{font-size:34px}
+
+  /* Prominent Breakdown By bar */
+  .breakdown-bar{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+    margin-top:14px;padding:14px 18px;
+    background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    position:relative;
+  }
+  .breakdown-bar::before{
+    content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;background:var(--violet-700);border-radius:0 3px 3px 0;
+  }
+  .breakdown-bar-left{display:flex;flex-direction:column;gap:2px;padding-left:6px}
+  .breakdown-bar-left .eyebrow{
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--violet-700);font-weight:700;
+  }
+  .breakdown-bar-left .breakdown-hint{
+    font-family:"Fraunces",serif;font-style:italic;font-size:12px;color:var(--ink-3);
+  }
+  .seg{
+    display:inline-flex;align-items:stretch;background:var(--violet-050);border:1px solid var(--violet-200);border-radius:10px;padding:3px;gap:2px;
+  }
+  .seg button{
+    font:inherit;font-size:13px;font-weight:500;color:var(--ink-2);
+    background:transparent;border:none;border-radius:7px;padding:8px 14px;cursor:pointer;
+    transition:background .15s, color .15s, box-shadow .15s;
+    white-space:nowrap;
+  }
+  .seg button:hover{color:var(--violet-700)}
+  .seg button.active{
+    background:var(--violet-700);color:#fff;font-weight:600;
+    box-shadow:0 2px 6px -2px rgba(87,6,140,.4);
+  }
+  .seg button.active:hover{color:#fff}
 
   .dimchart{
     background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 8px;box-shadow:var(--shadow);
@@ -386,15 +421,6 @@
           </div>
         </div>
 
-        <div class="pill" id="mult-pill" style="position:relative;cursor:pointer">
-          <div class="lbl">App Multiplier</div>
-          <div class="val" id="mult-val">1.00</div>
-          <div class="multpop" id="mult-pop">
-            <label>Multiplier (paid apps)</label>
-            <input type="number" min="0.1" max="10" step="0.1" id="mult-input" value="1.00" />
-          </div>
-        </div>
-
         <div class="dateblock">
           <div class="sel" id="fy-sel">
             <span class="lbl">Fiscal Year</span>
@@ -485,6 +511,21 @@
       <!-- PAGE 1 -->
       <div class="page active" id="page-1">
 
+        <div class="breakdown-bar">
+          <div class="breakdown-bar-left">
+            <span class="eyebrow">Break down by</span>
+            <span class="breakdown-hint">Sets the dimension for the chart and table below</span>
+          </div>
+          <div class="seg" id="dim-seg">
+            <button data-dim="month" class="active">Month</button>
+            <button data-dim="year">Year</button>
+            <button data-dim="division">Division</button>
+            <button data-dim="area">Area of Study</button>
+            <button data-dim="program">Program</button>
+            <button data-dim="platform">Platform</button>
+          </div>
+        </div>
+
         <div class="grid-main">
 
           <div class="sparkcol">
@@ -515,27 +556,46 @@
           </div>
 
           <div class="kpiframe">
-            <div class="dimrow">
-              <div class="dim-select" id="dim-select">
-                <span>Dimension: <b id="dim-label">Month Yr</b></span><span class="caret">▾</span>
-              </div>
-              <div class="dim-pop" id="dim-pop">
-                <button data-dim="month" class="active"><span class="check">✓</span>Month Yr</button>
-                <button data-dim="year"><span class="check"></span>Year</button>
-                <button data-dim="division"><span class="check"></span>Division</button>
-                <button data-dim="area"><span class="check"></span>Area of Study</button>
-                <button data-dim="program"><span class="check"></span>Program</button>
-                <button data-dim="platform"><span class="check"></span>Platform</button>
-              </div>
+            <div class="kpiframe-head">
+              <span class="eyebrow">Performance Summary</span>
+              <span class="eyebrow-meta">All selected segments aggregated</span>
             </div>
             <div class="kpis">
-              <div class="kpi"><div class="k">Impressions</div><div class="v" id="kpi-impr">—</div></div>
-              <div class="kpi"><div class="k">CTR</div><div class="v" id="kpi-ctr">—</div></div>
-              <div class="kpi"><div class="k">Clicks</div><div class="v" id="kpi-clk">—</div></div>
-              <div class="kpi"><div class="k">CPM</div><div class="v" id="kpi-cpm">—</div></div>
-              <div class="kpi"><div class="k">Paid Apps</div><div class="v" id="kpi-app">—</div></div>
-              <div class="kpi"><div class="k">CPA</div><div class="v" id="kpi-cpa">—</div></div>
-              <div class="kpi spend"><div class="k">Spend</div><div class="v" id="kpi-spend">—</div></div>
+              <div class="kpi primary">
+                <div class="k">Spend</div>
+                <div class="v" id="kpi-spend">—</div>
+                <div class="delta" id="kpi-spend-delta"></div>
+              </div>
+              <div class="kpi">
+                <div class="k">Paid Apps</div>
+                <div class="v" id="kpi-app">—</div>
+                <div class="delta" id="kpi-app-delta"></div>
+              </div>
+              <div class="kpi">
+                <div class="k">CPA</div>
+                <div class="v" id="kpi-cpa">—</div>
+                <div class="delta" id="kpi-cpa-delta"></div>
+              </div>
+              <div class="kpi">
+                <div class="k">Impressions</div>
+                <div class="v" id="kpi-impr">—</div>
+                <div class="delta" id="kpi-impr-delta"></div>
+              </div>
+              <div class="kpi">
+                <div class="k">Clicks</div>
+                <div class="v" id="kpi-clk">—</div>
+                <div class="delta" id="kpi-clk-delta"></div>
+              </div>
+              <div class="kpi">
+                <div class="k">CTR</div>
+                <div class="v" id="kpi-ctr">—</div>
+                <div class="delta" id="kpi-ctr-delta"></div>
+              </div>
+              <div class="kpi">
+                <div class="k">CPM</div>
+                <div class="v" id="kpi-cpm">—</div>
+                <div class="delta" id="kpi-cpm-delta"></div>
+              </div>
             </div>
           </div>
 
@@ -924,7 +984,6 @@ const STATE = {
   program:  new Set(PROGRAMS.map(p=>p.code)),
   area:     new Set(AREAS.map(a=>a.code)),
   platform: new Set(PLATFORMS.map(p=>p.code)),
-  appMultiplier: 1.00,
   dimension: "month",         // for KPI table & big bar (Page 1)
   bigBarMetric: "impressions",
 };
@@ -970,7 +1029,7 @@ function aggregate(rows, keyFn){
     if(!map.has(k)) map.set(k, {spend:0,impressions:0,clicks:0,apps:0,leads:0});
     const a = map.get(k);
     a.spend += r.spend; a.impressions += r.impressions; a.clicks += r.clicks;
-    a.apps += r.apps * STATE.appMultiplier;
+    a.apps += r.apps;
     a.leads += r.leads;
   }
   return map;
@@ -979,7 +1038,7 @@ function totals(rows){
   const t = {spend:0,impressions:0,clicks:0,apps:0,leads:0};
   for(const r of rows){
     t.spend += r.spend; t.impressions += r.impressions; t.clicks += r.clicks;
-    t.apps += r.apps * STATE.appMultiplier;
+    t.apps += r.apps;
     t.leads += r.leads;
   }
   return t;
@@ -1081,14 +1140,42 @@ function renderSparks(){
 
 // 6.2 KPI tiles
 function renderKpis(){
-  const t = derive(totals(filteredFacts()));
-  document.getElementById("kpi-impr").textContent = fmtN(t.impressions);
-  document.getElementById("kpi-ctr").textContent  = fmtPct(t.ctr);
-  document.getElementById("kpi-clk").textContent  = fmtN(t.clicks);
-  document.getElementById("kpi-cpm").textContent  = fmt$2(t.cpm);
-  document.getElementById("kpi-app").textContent  = fmtN(t.apps);
-  document.getElementById("kpi-cpa").textContent  = fmt$(t.cpa);
-  document.getElementById("kpi-spend").textContent= fmt$(t.spend);
+  const cur = derive(totals(filteredFacts()));
+  const pri = derive(totals(priorYearFacts()));
+  document.getElementById("kpi-impr").textContent = fmtN(cur.impressions);
+  document.getElementById("kpi-ctr").textContent  = fmtPct(cur.ctr);
+  document.getElementById("kpi-clk").textContent  = fmtN(cur.clicks);
+  document.getElementById("kpi-cpm").textContent  = fmt$2(cur.cpm);
+  document.getElementById("kpi-app").textContent  = fmtN(cur.apps);
+  document.getElementById("kpi-cpa").textContent  = fmt$(cur.cpa);
+  document.getElementById("kpi-spend").textContent= fmt$(cur.spend);
+
+  // YoY deltas. invertDir=true for cost metrics (lower = better).
+  setDelta("kpi-spend-delta", cur.spend, pri.spend, false);
+  setDelta("kpi-app-delta",   cur.apps,  pri.apps,  false);
+  setDelta("kpi-cpa-delta",   cur.cpa,   pri.cpa,   true);
+  setDelta("kpi-impr-delta",  cur.impressions, pri.impressions, false);
+  setDelta("kpi-clk-delta",   cur.clicks, pri.clicks, false);
+  setDelta("kpi-ctr-delta",   cur.ctr,   pri.ctr,   false);
+  setDelta("kpi-cpm-delta",   cur.cpm,   pri.cpm,   true);
+}
+
+function setDelta(id, cur, pri, invertDir){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(!isFinite(cur) || !isFinite(pri) || pri === 0){
+    el.innerHTML = `<span class="pct flat">—</span><span class="label">vs prior FY</span>`;
+    return;
+  }
+  const pct = (cur - pri) / Math.abs(pri);
+  const up = pct > 0;
+  const isFlat = Math.abs(pct) < 0.005;
+  // For cost metrics, "up" means worse, so flip the color but keep the arrow direction true
+  const goodWhenUp = !invertDir;
+  const klass = isFlat ? "flat" : ((up === goodWhenUp) ? "up" : "down");
+  const arrow = isFlat ? "•" : (up ? "▲" : "▼");
+  const pctStr = (Math.abs(pct)*100).toFixed(Math.abs(pct) < 0.1 ? 1 : 0) + "%";
+  el.innerHTML = `<span class="pct ${klass}">${arrow} ${up?"+":(isFlat?"":"-")}${pctStr}</span><span class="label">vs prior FY</span>`;
 }
 
 // 6.3 Big bar chart — by current dimension and current metric
@@ -1275,7 +1362,7 @@ function renderPivot(){
   const m = new Map();
   rows.forEach(r => {
     const k = r.division+"|"+r.month;
-    m.set(k, (m.get(k)||0) + r.apps * STATE.appMultiplier);
+    m.set(k, (m.get(k)||0) + r.apps);
   });
 
   const data = {};
@@ -1731,27 +1818,18 @@ function hookDropdowns(){
   // Click outside closes
   document.addEventListener("click", (e) => {
     if(!e.target.closest(".ddl")) document.querySelectorAll(".ddl").forEach(x=>x.classList.remove("open"));
-    if(!e.target.closest(".dim-select") && !e.target.closest(".dim-pop")) document.getElementById("dim-pop").classList.remove("open");
     if(!e.target.closest("#bigbar-metric-trigger") && !e.target.closest("#bigbar-metric-pop")) document.getElementById("bigbar-metric-pop").classList.remove("open");
-    if(!e.target.closest("#mult-pill")) document.getElementById("mult-pop").classList.remove("open");
     if(!e.target.closest(".dateblock") && !e.target.closest("#datepop")) document.getElementById("datepop").style.display = "none";
   });
 }
 
 function hookDimSelect(){
-  document.getElementById("dim-select").addEventListener("click", (e) => {
-    e.stopPropagation();
-    document.getElementById("dim-pop").classList.toggle("open");
-  });
-  document.querySelectorAll("#dim-pop button").forEach(b => {
+  document.querySelectorAll("#dim-seg button").forEach(b => {
     b.addEventListener("click", () => {
       STATE.dimension = b.dataset.dim;
-      document.querySelectorAll("#dim-pop button").forEach(x => {
-        x.classList.toggle("active", x===b);
-        x.querySelector(".check").textContent = x===b ? "✓" : "";
-      });
-      document.getElementById("dim-label").textContent = DIM_LABEL[STATE.dimension];
-      document.getElementById("dim-pop").classList.remove("open");
+      document.querySelectorAll("#dim-seg button").forEach(x => x.classList.toggle("active", x===b));
+      // Recreate bar chart because axis orientation may change
+      if(charts.bigBar){ charts.bigBar.destroy(); delete charts.bigBar; }
       renderBigBar();
       renderMetricsTable("metrics-tbody","metrics-tfoot","th-dim","table-count");
     });
@@ -1772,23 +1850,6 @@ function hookBigBarMetric(){
       if(charts.bigBar){ charts.bigBar.destroy(); delete charts.bigBar; }
       renderBigBar();
     });
-  });
-}
-
-function hookMultiplier(){
-  const pill = document.getElementById("mult-pill");
-  const pop = document.getElementById("mult-pop");
-  const inp = document.getElementById("mult-input");
-  pill.addEventListener("click", (e) => {
-    if(e.target.closest(".multpop")) return;
-    pop.classList.toggle("open");
-  });
-  inp.addEventListener("change", () => {
-    const v = parseFloat(inp.value);
-    if(!isFinite(v) || v<=0) return;
-    STATE.appMultiplier = v;
-    document.getElementById("mult-val").textContent = v.toFixed(2);
-    renderAll();
   });
 }
 
@@ -1824,20 +1885,14 @@ function hookReset(){
     STATE.program  = new Set(PROGRAMS.map(p=>p.code));
     STATE.area     = new Set(AREAS.map(a=>a.code));
     STATE.platform = new Set(PLATFORMS.map(p=>p.code));
-    STATE.appMultiplier = 1.00;
     STATE.dimension = "month";
     STATE.bigBarMetric = "impressions";
 
-    document.getElementById("mult-input").value = "1.00";
-    document.getElementById("mult-val").textContent = "1.00";
     document.getElementById("fy-select").value = "2026";
     document.getElementById("dr-start").value = "2025-07-01";
     document.getElementById("dr-end").value = "2026-06-30";
-    document.getElementById("dim-label").textContent = "Month Yr";
-    document.querySelectorAll("#dim-pop button").forEach(b => {
-      const isMonth = b.dataset.dim==="month";
-      b.classList.toggle("active", isMonth);
-      b.querySelector(".check").textContent = isMonth ? "✓" : "";
+    document.querySelectorAll("#dim-seg button").forEach(b => {
+      b.classList.toggle("active", b.dataset.dim==="month");
     });
     document.querySelectorAll("#bigbar-metric-pop button").forEach(b => b.classList.toggle("active", b.dataset.m==="impressions"));
 
@@ -1871,7 +1926,6 @@ window.addEventListener("DOMContentLoaded", () => {
   hookDropdowns();
   hookDimSelect();
   hookBigBarMetric();
-  hookMultiplier();
   hookDate();
   hookReset();
   renderAll();
