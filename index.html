@@ -1,0 +1,1882 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NYU SPS Marketing Dashboard — Prototype</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+  :root{
+    --violet-900:#330662;
+    --violet-800:#3F0072;
+    --violet-700:#57068C;
+    --violet-600:#6A1AA6;
+    --violet-500:#8A3FBF;
+    --violet-200:#E2D2F0;
+    --violet-100:#F1E8F8;
+    --violet-050:#F8F3FC;
+    --gold:#F2C46D;
+    --ink:#1A1226;
+    --ink-2:#3B2E50;
+    --ink-3:#6B5E80;
+    --line:#E7E0EF;
+    --line-2:#D8CCE6;
+    --bg:#FAF7F2;
+    --card:#FFFFFF;
+    --good:#1F8A4D;
+    --bad:#C0392B;
+    --shadow:0 1px 0 rgba(26,18,38,.04), 0 8px 24px -12px rgba(26,18,38,.12);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Inter Tight",ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"ss01","cv11","tnum"}
+  body{min-height:100vh}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(87,6,140,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(87,6,140,.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at top, rgba(0,0,0,.5), transparent 75%);
+  }
+  .shell{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:20px 24px 48px}
+
+  .appbar{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 18px;border-bottom:1px solid var(--line)}
+  .appbar .crumb{display:flex;align-items:center;gap:12px;font-family:"Fraunces",serif;font-weight:500;letter-spacing:-.01em}
+  .appbar .mark{
+    width:36px;height:36px;border-radius:8px;background:var(--violet-700);
+    color:#fff;display:grid;place-items:center;font-family:"Fraunces",serif;font-weight:700;font-size:18px;
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);
+  }
+  .crumb .title{font-size:18px}
+  .crumb .sep{color:var(--ink-3);margin:0 2px}
+  .crumb .page{color:var(--ink-3);font-style:italic}
+  .appbar .actions{display:flex;align-items:center;gap:8px}
+  .btn{font:inherit;font-size:13px;border:1px solid var(--line-2);background:#fff;color:var(--ink-2);padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .15s}
+  .btn:hover{border-color:var(--violet-500);color:var(--violet-700)}
+  .btn.primary{background:var(--violet-700);border-color:var(--violet-700);color:#fff}
+  .btn.primary:hover{background:var(--violet-800)}
+
+  .layout{display:grid;grid-template-columns:44px 1fr;gap:16px;margin-top:16px}
+  .pagerail{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:10px}
+  .pagerail button{
+    width:30px;height:30px;border-radius:50%;border:1px solid var(--line-2);
+    background:#fff;color:var(--ink-3);font:inherit;font-size:12px;cursor:pointer;font-family:"JetBrains Mono",monospace;
+    transition:all .15s;
+  }
+  .pagerail button:hover{border-color:var(--violet-500);color:var(--violet-700)}
+  .pagerail button.active{background:var(--violet-700);color:#fff;border-color:var(--violet-700);box-shadow:0 0 0 3px var(--violet-100)}
+
+  .topbar{
+    display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:14px;
+    padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  }
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .torch{
+    width:42px;height:42px;border-radius:10px;background:linear-gradient(160deg, var(--violet-700), var(--violet-900));
+    display:grid;place-items:center;color:#fff;font-family:"Fraunces",serif;font-weight:700;font-size:14px;letter-spacing:-.02em;
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,.2), 0 4px 14px -6px rgba(87,6,140,.4);
+  }
+  .brand .lockup{line-height:1.05}
+  .brand .lockup .nyu{font-family:"Fraunces",serif;font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--violet-700)}
+  .brand .lockup .sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:2px;font-weight:500}
+
+  .pill{
+    background:#FFF4D9;border:1px solid #F1D699;border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;
+  }
+  .pill .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#8a6500;font-weight:600}
+  .pill .val{font-family:"JetBrains Mono",monospace;font-size:14px;color:#5a4500;font-weight:600}
+
+  .dateblock{display:flex;align-items:center;gap:8px;background:var(--violet-050);border:1px solid var(--violet-200);border-radius:10px;padding:6px 10px}
+  .dateblock .sel{display:flex;flex-direction:column;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s}
+  .dateblock .sel:hover{background:rgba(255,255,255,.6)}
+  .dateblock .sel .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--violet-700);font-weight:600}
+  .dateblock .sel .val{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink);font-weight:500}
+  .dateblock .or{color:var(--violet-700);font-style:italic;font-family:"Fraunces",serif;font-size:14px}
+
+  /* Filter dropdowns */
+  .filtergrid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:8px}
+  .ddl{
+    position:relative;
+    background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:6px 10px;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;min-width:170px;font-size:12px;color:var(--ink-2);
+    user-select:none;
+  }
+  .ddl:hover{border-color:var(--violet-500)}
+  .ddl.open{border-color:var(--violet-700);box-shadow:0 0 0 3px var(--violet-100)}
+  .ddl .lbl-text{display:flex;flex-direction:column;line-height:1.15}
+  .ddl .lbl-text .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:600}
+  .ddl .lbl-text .sum{font-size:12px;color:var(--ink);font-weight:500}
+  .ddl .caret{color:var(--ink-3);font-size:10px;margin-left:6px}
+
+  .ddlmenu{
+    position:absolute;top:calc(100% + 6px);left:0;min-width:260px;max-width:340px;
+    background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);
+    padding:8px;z-index:50;display:none;max-height:340px;overflow:hidden;
+    flex-direction:column;
+  }
+  .ddl.open .ddlmenu{display:flex}
+  .ddlmenu .ddlhead{display:flex;align-items:center;gap:6px;padding:4px 4px 8px;border-bottom:1px solid var(--line)}
+  .ddlmenu .ddlhead input{
+    flex:1;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font:inherit;font-size:12px;color:var(--ink);background:#fff;
+  }
+  .ddlmenu .ddlhead input:focus{outline:none;border-color:var(--violet-500)}
+  .ddlmenu .ddlhead button{
+    font:inherit;font-size:10px;text-transform:uppercase;letter-spacing:.08em;background:none;border:none;color:var(--violet-700);cursor:pointer;font-weight:600;padding:4px 6px;border-radius:4px;
+  }
+  .ddlmenu .ddlhead button:hover{background:var(--violet-050)}
+  .ddlmenu .ddllist{flex:1;overflow:auto;margin-top:4px}
+  .ddlmenu label{
+    display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink-2);
+  }
+  .ddlmenu label:hover{background:var(--violet-050)}
+  .ddlmenu label input[type=checkbox]{accent-color:var(--violet-700);width:14px;height:14px;cursor:pointer}
+  .ddlmenu label .codepill{
+    font-family:"JetBrains Mono",monospace;font-size:10px;background:var(--violet-050);color:var(--violet-700);
+    padding:1px 6px;border-radius:4px;border:1px solid var(--violet-200);font-weight:600;
+  }
+  .ddlmenu .empty{padding:14px;text-align:center;color:var(--ink-3);font-size:12px;font-style:italic}
+
+  /* Date popup */
+  .datepop{
+    position:absolute;top:calc(100% + 8px);left:0;min-width:280px;
+    background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);
+    padding:10px;z-index:50;display:none;
+  }
+  .dateblock .sel.open + .datepop, .dateblock .sel.open ~ .datepop.thisone{display:block}
+  .datepop .row{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+  .datepop .row label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:600}
+  .datepop .row input, .datepop .row select{
+    border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;font-size:13px;
+  }
+  .datepop .row input:focus, .datepop .row select:focus{outline:none;border-color:var(--violet-500)}
+  .datepop .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
+  .datepop .acts button{
+    font:inherit;font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--line-2);background:#fff;color:var(--ink-2);cursor:pointer;
+  }
+  .datepop .acts button.apply{background:var(--violet-700);color:#fff;border-color:var(--violet-700)}
+
+  /* App Multiplier popup */
+  .multpop{
+    position:absolute;top:calc(100% + 8px);left:0;min-width:220px;
+    background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);
+    padding:10px;z-index:50;display:none;
+  }
+  .multpop.open{display:block}
+  .multpop label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);font-weight:600;display:block;margin-bottom:4px}
+  .multpop input{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;font-size:13px}
+
+  /* KPI block */
+  .grid-main{display:grid;grid-template-columns:240px 1fr 1fr;gap:14px;margin-top:14px}
+  .sparkcol{display:flex;flex-direction:column;gap:10px}
+  .sparkcard{
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px 6px;box-shadow:var(--shadow);
+    min-height:140px;
+  }
+  .sparkcard .head{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+  .sparkcard .head .dot{width:8px;height:8px;border-radius:50%;background:var(--violet-700)}
+  .sparkcard canvas{display:block;width:100% !important;height:100px !important}
+
+  .refresh{
+    background:linear-gradient(160deg, var(--violet-700), var(--violet-900));
+    color:#fff;border-radius:12px;padding:14px 14px;display:flex;flex-direction:column;gap:2px;
+  }
+  .refresh .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;font-weight:600}
+  .refresh .val{font-family:"Fraunces",serif;font-size:18px;font-weight:600;letter-spacing:-.01em}
+
+  .kpiframe{
+    background:linear-gradient(180deg, var(--violet-700) 0%, var(--violet-800) 100%);
+    border-radius:14px;padding:14px;box-shadow:var(--shadow);
+    position:relative;
+  }
+  .kpiframe::after{
+    content:"OVERALL";
+    position:absolute;top:8px;right:14px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.5);
+  }
+  .dimrow{display:flex;justify-content:flex-start;margin-bottom:10px;position:relative}
+  .dim-select{
+    background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--violet-700);font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;
+  }
+  .dim-select .caret{color:var(--violet-500);font-size:10px}
+  .dim-pop{
+    position:absolute;top:calc(100% + 6px);left:0;min-width:200px;background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);padding:6px;z-index:50;display:none;
+  }
+  .dim-pop.open{display:block}
+  .dim-pop button{
+    display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;font:inherit;font-size:13px;padding:6px 8px;border-radius:6px;color:var(--ink-2);cursor:pointer;
+  }
+  .dim-pop button:hover{background:var(--violet-050)}
+  .dim-pop button.active{background:var(--violet-050);color:var(--violet-700);font-weight:600}
+  .dim-pop button .check{width:14px;color:var(--violet-700)}
+
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{
+    background:#fff;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;text-align:center;
+  }
+  .kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--violet-700);font-weight:600}
+  .kpi .v{font-family:"Fraunces",serif;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+  .kpi.spend{grid-column:span 2}
+  .kpi.spend .v{font-size:28px}
+
+  .dimchart{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 8px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;position:relative;min-height:380px;
+  }
+  .dimchart .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;position:relative;flex:0 0 auto}
+  .dimchart .head .ttl{font-family:"Fraunces",serif;font-size:16px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+  .dimchart .head .hint{font-size:11px;color:var(--ink-3);font-style:italic;font-family:"Fraunces",serif;cursor:pointer}
+  .dimchart .head .hint:hover{color:var(--violet-700)}
+  .dimchart .chartbody{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative}
+  .dimchart canvas{display:block;width:100% !important}
+  .metric-pop{
+    position:absolute;top:calc(100% + 6px);right:0;min-width:200px;background:#fff;border:1px solid var(--violet-200);border-radius:10px;box-shadow:0 12px 28px -8px rgba(26,18,38,.25);padding:6px;z-index:50;display:none;
+  }
+  .metric-pop.open{display:block}
+  .metric-pop button{
+    display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;font:inherit;font-size:13px;padding:6px 8px;border-radius:6px;color:var(--ink-2);cursor:pointer;
+  }
+  .metric-pop button:hover{background:var(--violet-050)}
+  .metric-pop button.active{background:var(--violet-050);color:var(--violet-700);font-weight:600}
+
+  .tablecard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 0 0;box-shadow:var(--shadow);margin-top:14px;overflow:hidden}
+  .tablecard .thead{padding:10px 16px;display:flex;justify-content:space-between;align-items:baseline}
+  .tablecard .thead .ttl{font-family:"Fraunces",serif;font-size:15px;font-weight:600}
+  .tablecard .thead .sub{font-size:11px;color:var(--ink-3);font-family:"JetBrains Mono",monospace}
+  table.metrics{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  table.metrics thead th{
+    background:var(--violet-050);color:var(--violet-800);text-align:right;padding:10px 14px;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+  }
+  table.metrics thead th:first-child{text-align:left}
+  table.metrics tbody td{padding:9px 14px;border-bottom:1px solid var(--line);text-align:right;color:var(--ink-2)}
+  table.metrics tbody td:first-child{text-align:left;font-weight:500;color:var(--ink)}
+  table.metrics tbody tr:hover{background:var(--violet-050)}
+  table.metrics tfoot td{padding:10px 14px;font-weight:600;background:#FAF7F2;border-top:2px solid var(--violet-700);text-align:right}
+  table.metrics tfoot td:first-child{text-align:left;font-family:"Fraunces",serif}
+  .heatcell{display:inline-block;padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums;min-width:32px;text-align:center;font-weight:500}
+  .h0{background:#F1E8F8;color:var(--violet-700)}
+  .h1{background:#DEC4F0;color:var(--violet-800)}
+  .h2{background:#B98EDB;color:#fff}
+  .h3{background:#8A3FBF;color:#fff}
+  .h4{background:var(--violet-700);color:#fff}
+
+  .pivotwrap{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+  .pivotcard{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:auto}
+  .pivot{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+  .pivot thead th{
+    background:var(--violet-700);color:#fff;padding:8px 10px;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.06em;text-align:center;
+    position:sticky;top:0;
+  }
+  .pivot thead th:first-child{text-align:left;background:var(--violet-800)}
+  .pivot tbody td{padding:6px 8px;text-align:center;border-bottom:1px solid var(--line);color:var(--ink-2)}
+  .pivot tbody td:first-child{text-align:left;font-weight:500;padding-left:14px;color:var(--ink)}
+  .pivot tfoot td{padding:8px 10px;font-weight:600;background:#FAF7F2;border-top:2px solid var(--violet-700)}
+
+  .sxs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .barcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative;display:flex;flex-direction:column;min-height:340px}
+  .barcard .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;position:relative;flex:0 0 auto}
+  .barcard .head .ttl{font-family:"Fraunces",serif;font-weight:600;font-size:15px}
+  .barcard .head .sel{
+    background:var(--violet-050);border:1px solid var(--violet-200);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--violet-800);font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  }
+  .barcard .chartbody{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative}
+  .barcard canvas{display:block;width:100% !important}
+
+  .footerfilter{
+    margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);
+  }
+  .footerfilter .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);font-weight:600}
+  .footerfilter .val{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink)}
+
+  .yoy-line{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-top:14px;position:relative}
+  .yoy-line .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .yoy-line .head .ttl{font-family:"Fraunces",serif;font-weight:600;font-size:15px}
+  .yoy-line canvas{width:100% !important;height:280px !important}
+  .ydivider{
+    height:0;border-top:2px dashed var(--violet-500);margin:18px 0 6px;position:relative;opacity:.7;
+  }
+  .ydivider::after{
+    content:"YEAR-OVER-YEAR · BY DIMENSION";position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+    background:var(--bg);padding:0 14px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--violet-700);font-weight:600;
+  }
+
+  .yoytable{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .yoytable .head{padding:12px 16px;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line)}
+  .yoytable .head .ttl{font-family:"Fraunces",serif;font-weight:600;font-size:15px}
+  .yoytable .head .sub{font-size:11px;color:var(--ink-3);font-family:"JetBrains Mono",monospace}
+  .yoytable table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+  .yoytable thead th{
+    background:var(--violet-700);color:#fff;padding:8px 10px;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.08em;text-align:right;
+  }
+  .yoytable thead th:first-child{text-align:left;background:var(--violet-800);min-width:140px}
+  .yoytable thead th.delta{background:var(--violet-600);font-style:italic;font-family:"Fraunces",serif;font-weight:600;text-transform:none;letter-spacing:0;font-size:13px}
+  .yoytable tbody td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);color:var(--ink-2)}
+  .yoytable tbody td:first-child{text-align:left;font-weight:500;color:var(--ink);padding-left:16px}
+  .yoytable tbody td.delta{font-family:"JetBrains Mono",monospace;font-size:11px}
+  .yoytable tbody tr:hover{background:var(--violet-050)}
+  .yoytable tfoot td{padding:9px 10px;font-weight:600;background:#FAF7F2;border-top:2px solid var(--violet-700);text-align:right}
+  .yoytable tfoot td:first-child{text-align:left;font-family:"Fraunces",serif;padding-left:16px}
+  .up{color:var(--good)}
+  .down{color:var(--bad)}
+  .arrow{font-size:9px;margin-left:2px}
+  .pagecount{padding:8px 16px;text-align:right;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-3);background:#FAF7F2}
+
+  .page{display:none}
+  .page.active{display:block;animation:fadein .3s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);font-family:"JetBrains Mono",monospace}
+
+  .banner{background:#FFF8E0;border:1px solid #F1D699;border-radius:10px;padding:8px 14px;font-size:12px;color:#7a5500;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .banner b{color:#5a4000}
+
+  .p2-top{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-top:14px}
+
+  .section-tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.2em;color:var(--violet-700);font-weight:600;text-transform:uppercase}
+
+  /* Empty state */
+  .empty-state{
+    padding:40px 20px;text-align:center;color:var(--ink-3);font-family:"Fraunces",serif;font-style:italic;font-size:14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="appbar">
+    <div class="crumb">
+      <div class="mark">N</div>
+      <div>
+        <div class="title">BigQuery NYU SPS Marketing Dashboard</div>
+      </div>
+      <span class="sep">›</span>
+      <span class="page" id="crumb-page">Overall Performance</span>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btn-reset">↺ Reset</button>
+      <button class="btn primary">⊕ Share ▾</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <div class="pagerail">
+      <button class="active" data-page="1">1</button>
+      <button data-page="2">2</button>
+    </div>
+
+    <div>
+      <div class="banner">
+        <b>Prototype</b> · This is a non-production dashboard built on synthetic data for NYU School of Professional Studies. All numbers are illustrative. The dropdowns are fully interactive — try filtering by division, program, area of study, or platform.
+      </div>
+
+      <!-- Top filter bar -->
+      <div class="topbar">
+        <div class="brand">
+          <div class="torch">SPS</div>
+          <div class="lockup">
+            <div class="nyu">NYU</div>
+            <div class="sub">School of Professional Studies</div>
+          </div>
+        </div>
+
+        <div class="pill" id="mult-pill" style="position:relative;cursor:pointer">
+          <div class="lbl">App Multiplier</div>
+          <div class="val" id="mult-val">1.00</div>
+          <div class="multpop" id="mult-pop">
+            <label>Multiplier (paid apps)</label>
+            <input type="number" min="0.1" max="10" step="0.1" id="mult-input" value="1.00" />
+          </div>
+        </div>
+
+        <div class="dateblock">
+          <div class="sel" id="fy-sel">
+            <span class="lbl">Fiscal Year</span>
+            <span class="val" id="fy-val">FY 2026 (1)</span>
+          </div>
+          <span class="or">or</span>
+          <div class="sel" id="dr-sel">
+            <span class="lbl">Date Range</span>
+            <span class="val" id="dr-val">Jul 1, 2025 — Jun 30, 2026</span>
+          </div>
+          <div class="datepop" id="datepop">
+            <div class="row">
+              <label>Fiscal Year</label>
+              <select id="fy-select">
+                <option value="2026" selected>FY 2026</option>
+                <option value="2025">FY 2025</option>
+                <option value="2024">FY 2024</option>
+              </select>
+            </div>
+            <div class="row">
+              <label>Start (override FY)</label>
+              <input type="date" id="dr-start" value="2025-07-01" />
+            </div>
+            <div class="row">
+              <label>End</label>
+              <input type="date" id="dr-end" value="2026-06-30" />
+            </div>
+            <div class="acts">
+              <button id="date-cancel">Cancel</button>
+              <button class="apply" id="date-apply">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="filtergrid">
+          <div class="ddl" data-filter="division">
+            <div class="lbl-text"><span class="lbl">Division</span><span class="sum" id="sum-division">All (7)</span></div>
+            <span class="caret">▾</span>
+            <div class="ddlmenu" data-filter="division">
+              <div class="ddlhead">
+                <input type="text" placeholder="Search…" />
+                <button data-act="all">All</button>
+                <button data-act="none">None</button>
+              </div>
+              <div class="ddllist"></div>
+            </div>
+          </div>
+          <div class="ddl" data-filter="program">
+            <div class="lbl-text"><span class="lbl">Program</span><span class="sum" id="sum-program">All (22)</span></div>
+            <span class="caret">▾</span>
+            <div class="ddlmenu" data-filter="program">
+              <div class="ddlhead">
+                <input type="text" placeholder="Search programs…" />
+                <button data-act="all">All</button>
+                <button data-act="none">None</button>
+              </div>
+              <div class="ddllist"></div>
+            </div>
+          </div>
+          <div class="ddl" data-filter="area">
+            <div class="lbl-text"><span class="lbl">Area of Study</span><span class="sum" id="sum-area">All (8)</span></div>
+            <span class="caret">▾</span>
+            <div class="ddlmenu" data-filter="area">
+              <div class="ddlhead">
+                <input type="text" placeholder="Search…" />
+                <button data-act="all">All</button>
+                <button data-act="none">None</button>
+              </div>
+              <div class="ddllist"></div>
+            </div>
+          </div>
+          <div class="ddl" data-filter="platform">
+            <div class="lbl-text"><span class="lbl">Platform</span><span class="sum" id="sum-platform">All (9)</span></div>
+            <span class="caret">▾</span>
+            <div class="ddlmenu" data-filter="platform">
+              <div class="ddlhead">
+                <input type="text" placeholder="Search…" />
+                <button data-act="all">All</button>
+                <button data-act="none">None</button>
+              </div>
+              <div class="ddllist"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PAGE 1 -->
+      <div class="page active" id="page-1">
+
+        <div class="grid-main">
+
+          <div class="sparkcol">
+            <div class="sparkcard">
+              <div class="head"><span>↗ Spend</span><span class="dot"></span></div>
+              <canvas id="sp-spend"></canvas>
+            </div>
+            <div class="sparkcard">
+              <div class="head"><span>↗ Paid Apps</span><span class="dot"></span></div>
+              <canvas id="sp-apps"></canvas>
+            </div>
+            <div class="sparkcard">
+              <div class="head"><span>↗ CPM</span><span class="dot"></span></div>
+              <canvas id="sp-cpm"></canvas>
+            </div>
+            <div class="sparkcard">
+              <div class="head"><span>↗ CPC</span><span class="dot"></span></div>
+              <canvas id="sp-cpc"></canvas>
+            </div>
+            <div class="sparkcard">
+              <div class="head"><span>↗ CPA</span><span class="dot"></span></div>
+              <canvas id="sp-cpa"></canvas>
+            </div>
+            <div class="refresh">
+              <div class="lbl">Data Last Refreshed</div>
+              <div class="val">May 24, 2026</div>
+            </div>
+          </div>
+
+          <div class="kpiframe">
+            <div class="dimrow">
+              <div class="dim-select" id="dim-select">
+                <span>Dimension: <b id="dim-label">Month Yr</b></span><span class="caret">▾</span>
+              </div>
+              <div class="dim-pop" id="dim-pop">
+                <button data-dim="month" class="active"><span class="check">✓</span>Month Yr</button>
+                <button data-dim="year"><span class="check"></span>Year</button>
+                <button data-dim="division"><span class="check"></span>Division</button>
+                <button data-dim="area"><span class="check"></span>Area of Study</button>
+                <button data-dim="program"><span class="check"></span>Program</button>
+                <button data-dim="platform"><span class="check"></span>Platform</button>
+              </div>
+            </div>
+            <div class="kpis">
+              <div class="kpi"><div class="k">Impressions</div><div class="v" id="kpi-impr">—</div></div>
+              <div class="kpi"><div class="k">CTR</div><div class="v" id="kpi-ctr">—</div></div>
+              <div class="kpi"><div class="k">Clicks</div><div class="v" id="kpi-clk">—</div></div>
+              <div class="kpi"><div class="k">CPM</div><div class="v" id="kpi-cpm">—</div></div>
+              <div class="kpi"><div class="k">Paid Apps</div><div class="v" id="kpi-app">—</div></div>
+              <div class="kpi"><div class="k">CPA</div><div class="v" id="kpi-cpa">—</div></div>
+              <div class="kpi spend"><div class="k">Spend</div><div class="v" id="kpi-spend">—</div></div>
+            </div>
+          </div>
+
+          <div class="dimchart">
+            <div class="head">
+              <span class="ttl"><b id="bigbar-metric">Impressions</b> by <b id="bigbar-dim">Month</b></span>
+              <span class="hint" id="bigbar-metric-trigger">← Change metric ▾</span>
+              <div class="metric-pop" id="bigbar-metric-pop">
+                <button data-m="impressions" class="active">Impressions</button>
+                <button data-m="spend">Spend</button>
+                <button data-m="clicks">Clicks</button>
+                <button data-m="apps">Paid Apps</button>
+                <button data-m="leads">Paid Leads</button>
+              </div>
+            </div>
+            <div class="chartbody"><canvas id="big-bar"></canvas></div>
+          </div>
+
+        </div>
+
+        <div class="tablecard">
+          <div class="thead">
+            <div class="ttl">Performance by <span id="table-dim-label">Month</span></div>
+            <div class="sub" id="table-count">DIMENSION: MONTH YR</div>
+          </div>
+          <table class="metrics" id="metrics-table">
+            <thead>
+              <tr>
+                <th id="th-dim">Month ▴</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>CPM</th><th>Paid Leads</th><th>CPL</th><th>Paid Apps</th><th>CPA</th>
+              </tr>
+            </thead>
+            <tbody id="metrics-tbody"></tbody>
+            <tfoot id="metrics-tfoot"></tfoot>
+          </table>
+        </div>
+
+        <div class="pivotwrap">
+          <div class="pivotcard">
+            <div class="thead" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:baseline">
+              <div class="ttl" style="font-family:Fraunces,serif;font-weight:600;font-size:15px">Paid Apps · Division × Month</div>
+              <div class="sub" style="font-size:11px;color:var(--ink-3);font-family:JetBrains Mono,monospace">HEATMAP · DARKER = MORE</div>
+            </div>
+            <table class="pivot" id="pivot-table"></table>
+          </div>
+        </div>
+
+        <div class="sxs">
+          <div class="barcard">
+            <div class="head">
+              <div class="ttl">Spend by Platform</div>
+              <div class="sel">Metric: Spend</div>
+            </div>
+            <div class="chartbody"><canvas id="bar-platform"></canvas></div>
+          </div>
+          <div class="barcard">
+            <div class="head">
+              <div class="ttl">Spend by Campaign</div>
+              <div class="sel">Metric: Spend</div>
+            </div>
+            <div class="chartbody"><canvas id="bar-campaign"></canvas></div>
+          </div>
+        </div>
+
+        <div class="footerfilter">
+          <span class="lbl">Year for Chart</span>
+          <span class="val" id="years-for-chart">2024, 2025</span>
+          <span style="margin-left:8px;color:var(--ink-3);font-size:11px">(2) ▾</span>
+        </div>
+
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="page" id="page-2">
+
+        <div class="p2-top">
+          <div class="tablecard" style="margin-top:0">
+            <div class="thead">
+              <div class="ttl">Monthly Performance — Detail</div>
+              <div class="sub">DIMENSION: MONTH YR</div>
+            </div>
+            <table class="metrics" id="p2-metrics-table">
+              <thead>
+                <tr>
+                  <th>Month ▴</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>CPC</th><th>CPM</th><th>Paid Leads</th><th>CPL</th><th>Paid Apps</th><th>CPA</th>
+                </tr>
+              </thead>
+              <tbody id="p2-metrics-tbody"></tbody>
+              <tfoot id="p2-metrics-tfoot"></tfoot>
+            </table>
+          </div>
+
+          <div class="barcard" style="margin-top:0">
+            <div class="head">
+              <div class="ttl">Paid Apps by Month</div>
+              <div class="sel">Sorted ↓</div>
+            </div>
+            <div class="chartbody"><canvas id="p2-paid-apps"></canvas></div>
+          </div>
+        </div>
+
+        <div class="yoy-line">
+          <div class="head">
+            <div class="ttl">Paid Apps — Year over Year</div>
+            <div class="section-tag">FY 2026 vs FY 2025</div>
+          </div>
+          <canvas id="p2-yoy-line"></canvas>
+        </div>
+
+        <div class="ydivider"></div>
+
+        <div class="yoytable">
+          <div class="head"><div class="ttl">By Division</div><div class="sub" id="yoy-div-count"></div></div>
+          <table id="yoy-div"></table>
+        </div>
+
+        <div class="yoytable">
+          <div class="head"><div class="ttl">By Area of Study</div><div class="sub" id="yoy-area-count"></div></div>
+          <table id="yoy-area"></table>
+        </div>
+
+        <div class="yoytable">
+          <div class="head"><div class="ttl">By Program</div><div class="sub" id="yoy-prog-count"></div></div>
+          <table id="yoy-prog"></table>
+        </div>
+
+        <div class="yoytable">
+          <div class="head"><div class="ttl">By Platform</div><div class="sub" id="yoy-plat-count"></div></div>
+          <table id="yoy-plat"></table>
+        </div>
+
+        <div class="yoytable">
+          <div class="head"><div class="ttl">By Ad Set / Campaign Name</div><div class="sub" id="yoy-camp-count"></div></div>
+          <table id="yoy-camp"></table>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>NYU SPS · MARKETING ANALYTICS · PROTOTYPE</span>
+    <span>DATA LAST UPDATED 5/24/2026 6:13:31 PM &nbsp; · &nbsp; PRIVACY POLICY</span>
+  </div>
+
+</div>
+
+<script>
+/* =============================================================
+   1. DOMAIN MODEL (NYU SPS divisions, programs, areas, platforms)
+   ============================================================= */
+const DIVISIONS = [
+  {code:"DPB",   name:"Programs in Business",            weight:0.34},
+  {code:"DAUS",  name:"Applied Undergraduate Studies",   weight:0.12},
+  {code:"CGA",   name:"Center for Global Affairs",       weight:0.14},
+  {code:"CPWM",  name:"Publishing, Writing, Media",      weight:0.07},
+  {code:"TCOH",  name:"Tisch Center of Hospitality",     weight:0.12},
+  {code:"TIGS",  name:"Tisch Institute for Global Sport",weight:0.08},
+  {code:"SCHK",  name:"Schack Institute of Real Estate", weight:0.13},
+];
+const AREAS = [
+  {code:"BUS",  name:"Business",             weight:0.36},
+  {code:"COMM", name:"Communications",       weight:0.14},
+  {code:"INTL", name:"International Affairs",weight:0.14},
+  {code:"RE",   name:"Real Estate",          weight:0.13},
+  {code:"HOSP", name:"Hospitality",          weight:0.10},
+  {code:"SPRT", name:"Sport",                weight:0.07},
+  {code:"PWM",  name:"Publishing/Writing",   weight:0.04},
+  {code:"UG",   name:"Undergraduate",        weight:0.02},
+];
+const PROGRAMS = [
+  {code:"IM",   name:"MS Integrated Marketing",          division:"DPB",  area:"COMM"},
+  {code:"PRCC", name:"MS Public Relations & Corp Comm",  division:"DPB",  area:"COMM"},
+  {code:"EMSC", name:"Exec MS Marketing & Strat Comm",   division:"DPB",  area:"COMM"},
+  {code:"HCM",  name:"MS Human Capital Management",      division:"DPB",  area:"BUS"},
+  {code:"HCAT", name:"MS Human Capital Analytics & Tech",division:"DPB",  area:"BUS"},
+  {code:"MA",   name:"MS Management & Analytics",        division:"DPB",  area:"BUS"},
+  {code:"PM",   name:"MS Project Management",            division:"DPB",  area:"BUS"},
+  {code:"FP",   name:"MS Financial Planning",            division:"DPB",  area:"BUS"},
+  {code:"EM",   name:"MS Entrepreneurship & Management", division:"DPB",  area:"BUS"},
+  {code:"ECOC", name:"MS Exec Coaching & Org Consulting",division:"DPB",  area:"BUS"},
+  {code:"GA",   name:"MS Global Affairs",                division:"CGA",  area:"INTL"},
+  {code:"GSCC", name:"MS Global Sec, Conflict & Cyber",  division:"CGA",  area:"INTL"},
+  {code:"PUB",  name:"MS Publishing",                    division:"CPWM", area:"PWM"},
+  {code:"PRWR", name:"MS Professional Writing",          division:"CPWM", area:"PWM"},
+  {code:"TRANS",name:"MS Translation & Interpreting",    division:"CPWM", area:"PWM"},
+  {code:"GHM",  name:"MS Global Hospitality Mgmt",       division:"TCOH", area:"HOSP"},
+  {code:"EVT",  name:"MS Event Management",              division:"TCOH", area:"HOSP"},
+  {code:"TTM",  name:"MS Travel & Tourism Mgmt",         division:"TCOH", area:"HOSP"},
+  {code:"GSP",  name:"MS Global Sport",                  division:"TIGS", area:"SPRT"},
+  {code:"SB",   name:"MS Sports Business",               division:"TIGS", area:"SPRT"},
+  {code:"REM",  name:"MS Real Estate",                   division:"SCHK", area:"RE"},
+  {code:"RED",  name:"MS Real Estate Development",       division:"SCHK", area:"RE"},
+];
+const PLATFORMS = [
+  {code:"GS",  name:"Google Search",  weight:0.50},
+  {code:"MT",  name:"Meta",           weight:0.18},
+  {code:"LI",  name:"LinkedIn Ads",   weight:0.12},
+  {code:"IG",  name:"Instagram",      weight:0.07},
+  {code:"FB",  name:"Facebook",       weight:0.05},
+  {code:"MS",  name:"Microsoft Ads",  weight:0.04},
+  {code:"TT",  name:"TikTok",         weight:0.02},
+  {code:"RD",  name:"Reddit",         weight:0.01},
+  {code:"GD",  name:"Google Display", weight:0.01},
+];
+const AUDIENCES = ["Dom_Prospecting","Tristate_Prospecting","INTL_Prospecting","Brand_Search","Remarketing","Lookalike"];
+
+/* ============= DATE INFRASTRUCTURE =============
+   FY runs Jul 1 to Jun 30 (NYU convention).
+   We build 24 months of history (Jul 2024 → Jun 2026) so YoY works.
+*/
+const ALL_MONTHS = (() => {
+  const arr = [];
+  let y=2024,m=7;
+  for(let i=0;i<24;i++){
+    arr.push(`${y}-${String(m).padStart(2,"0")}`);
+    m++; if(m>12){m=1;y++;}
+  }
+  return arr;
+})();
+const FY26 = ALL_MONTHS.slice(12,24); // Jul 2025 - Jun 2026
+const FY25 = ALL_MONTHS.slice(0,12);  // Jul 2024 - Jun 2025
+const monthFY = (m)=> { const [y,mm] = m.split("-").map(Number); return mm>=7 ? y+1 : y; };
+const monthLabel = (m)=>{
+  const [y,mm] = m.split("-");
+  const names=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${names[+mm-1]} ${y}`;
+};
+const monthShort = m => monthLabel(m).replace(" 20","'");
+
+// Admissions seasonality, indexed Jul..Jun
+const SEASON = [0.05,0.05,0.07,0.08,0.09,0.08,0.12,0.13,0.13,0.11,0.06,0.03];
+function monthSeason(m){
+  const mm = +m.split("-")[1];
+  // Jul=index 0, Jun=index 11
+  const idx = mm>=7 ? mm-7 : mm+5;
+  return SEASON[idx];
+}
+
+/* =============================================================
+   2. FACT TABLE GENERATION  (the core change)
+   We pre-generate one row per (month × program × platform), then
+   filters just become row-level predicates that we aggregate over.
+   ============================================================= */
+// Targets calibrated to roughly match the original prototype totals
+const FY26_TARGET = { spend: 1_532_890, impressions: 48_712_304, clicks: 692_114, leads: 2_104, apps: 1_238 };
+const FY25_TARGET = { spend: 1_410_000, impressions: 44_000_000, clicks: 625_000, leads: 2_240, apps: 1_320 };
+
+// Deterministic pseudo-random so reloads are stable
+let _seed = 1337;
+function rng(){ _seed = (_seed*1103515245+12345) & 0x7fffffff; return _seed/0x7fffffff; }
+function rseed(s){ _seed = s; }
+
+// Pre-compute weights per (program × platform) -- some programs lean digital, others lean search-heavy
+function programPlatformAffinity(program, platform){
+  // base = platform's overall weight
+  let w = platform.weight;
+  // Business / Comm programs lean LinkedIn + Meta + IG more
+  if(program.area === "BUS" || program.area === "COMM"){
+    if(platform.code==="LI") w *= 1.8;
+    if(platform.code==="MT") w *= 1.2;
+  }
+  // UG / DAUS leans TikTok / IG
+  if(program.area === "UG"){
+    if(platform.code==="TT") w *= 4;
+    if(platform.code==="IG") w *= 2;
+    if(platform.code==="GS") w *= 0.6;
+  }
+  // International programs lean GS + Meta more
+  if(program.area === "INTL"){
+    if(platform.code==="GS") w *= 1.2;
+    if(platform.code==="MT") w *= 1.3;
+  }
+  return w;
+}
+
+function buildFactTable(months, target){
+  const facts = [];
+
+  // First pass: assign a raw weight to each cell
+  const cells = [];
+  let totalW = 0;
+  PROGRAMS.forEach(p => {
+    const area = AREAS.find(a=>a.code===p.area);
+    const div = DIVISIONS.find(d=>d.code===p.division);
+    // program-level weight: drawn from area weight × division weight (mixed)
+    const progBase = 0.5*area.weight + 0.5*div.weight;
+    // distribute across programs inside the area roughly equally with jitter
+    const programsInArea = PROGRAMS.filter(pp=>pp.area===p.area).length;
+    const progShare = progBase / programsInArea * (0.6 + rng()*0.8);
+    PLATFORMS.forEach(pl => {
+      const ppW = programPlatformAffinity(p, pl);
+      months.forEach((m,i) => {
+        const sW = monthSeason(m) * (0.85 + rng()*0.3);
+        const w = progShare * ppW * sW;
+        cells.push({ month:m, program:p.code, division:p.division, area:p.area, platform:pl.code, w });
+        totalW += w;
+      });
+    });
+  });
+
+  // Second pass: scale to hit targets
+  cells.forEach(c => {
+    const share = c.w / totalW;
+    const spend = target.spend * share;
+    // impressions and clicks scale with spend but with platform/program-level CPM/CPC variation
+    const cpmVar = 0.85 + rng()*0.4;
+    const ctrVar = 0.7 + rng()*0.8;
+    const impressions = (spend / (28 * cpmVar)) * 1000;
+    const clicks = impressions * 0.013 * ctrVar;
+    // app conversion: roughly apps share but with program-specific app rate
+    const appRate = 0.8 + rng()*0.6;
+    const apps = target.apps * share * appRate;
+    const leadRate = 0.9 + rng()*0.4;
+    const leads = target.leads * share * leadRate;
+
+    facts.push({
+      month: c.month,
+      fy: monthFY(c.month),
+      program: c.program,
+      division: c.division,
+      area: c.area,
+      platform: c.platform,
+      spend, impressions, clicks, apps, leads,
+    });
+  });
+
+  // Rebalance so the actual aggregated totals match targets exactly
+  const sums = facts.reduce((a,f)=>({
+    spend:a.spend+f.spend, impressions:a.impressions+f.impressions,
+    clicks:a.clicks+f.clicks, apps:a.apps+f.apps, leads:a.leads+f.leads
+  }), {spend:0,impressions:0,clicks:0,apps:0,leads:0});
+  const ks = {
+    spend: target.spend/sums.spend,
+    impressions: target.impressions/sums.impressions,
+    clicks: target.clicks/sums.clicks,
+    apps: target.apps/sums.apps,
+    leads: target.leads/sums.leads,
+  };
+  facts.forEach(f => {
+    f.spend *= ks.spend; f.impressions *= ks.impressions; f.clicks *= ks.clicks;
+    f.apps *= ks.apps; f.leads *= ks.leads;
+  });
+  return facts;
+}
+
+// Build complete fact tables for FY25 and FY26
+rseed(1337);
+const FACTS_FY26 = buildFactTable(FY26, FY26_TARGET);
+rseed(7777);
+const FACTS_FY25 = buildFactTable(FY25, FY25_TARGET);
+const ALL_FACTS = [...FACTS_FY26, ...FACTS_FY25];
+
+// Campaign-level allocation: derived from facts, with audience layer
+rseed(5555);
+const CAMPAIGNS = (() => {
+  // For each fact row (month × program × platform), split into 1-2 audience slices
+  const out = [];
+  ALL_FACTS.forEach(f => {
+    // skip very tiny facts
+    if(f.spend < 30) return;
+    // 1-2 audiences for this slice
+    const nAud = 1 + Math.floor(rng()*2);
+    for(let i=0;i<nAud;i++){
+      const aud = AUDIENCES[Math.floor(rng()*AUDIENCES.length)];
+      const share = nAud===1 ? 1 : (i===0 ? (0.55 + rng()*0.3) : 1);
+      const factor = nAud===1 ? 1 : (i===0 ? share : (1-share));
+      out.push({
+        month:f.month, fy:f.fy, program:f.program, division:f.division, area:f.area, platform:f.platform,
+        audience:aud,
+        spend:f.spend*factor, impressions:f.impressions*factor, clicks:f.clicks*factor,
+        apps:f.apps*factor, leads:f.leads*factor,
+      });
+    }
+  });
+  return out;
+})();
+
+/* =============================================================
+   3. FILTER STATE
+   ============================================================= */
+const STATE = {
+  fy: 2026,                                 // active fiscal year
+  startDate: null, endDate: null,           // overrides FY
+  division: new Set(DIVISIONS.map(d=>d.code)),
+  program:  new Set(PROGRAMS.map(p=>p.code)),
+  area:     new Set(AREAS.map(a=>a.code)),
+  platform: new Set(PLATFORMS.map(p=>p.code)),
+  appMultiplier: 1.00,
+  dimension: "month",         // for KPI table & big bar (Page 1)
+  bigBarMetric: "impressions",
+};
+
+function inDateRange(monthStr){
+  if(STATE.startDate && STATE.endDate){
+    return monthStr >= STATE.startDate.slice(0,7) && monthStr <= STATE.endDate.slice(0,7);
+  }
+  return monthFY(monthStr) === STATE.fy;
+}
+
+function filteredFacts(){
+  return ALL_FACTS.filter(f =>
+    inDateRange(f.month) &&
+    STATE.division.has(f.division) &&
+    STATE.program.has(f.program) &&
+    STATE.area.has(f.area) &&
+    STATE.platform.has(f.platform)
+  );
+}
+// Comparison (prior year) facts: same filters but shifted to prior fiscal year
+function priorYearFacts(){
+  if(STATE.startDate || STATE.endDate) {
+    // crude: just use FY-1 of the current FY
+  }
+  const priorFY = STATE.fy - 1;
+  return ALL_FACTS.filter(f =>
+    f.fy === priorFY &&
+    STATE.division.has(f.division) &&
+    STATE.program.has(f.program) &&
+    STATE.area.has(f.area) &&
+    STATE.platform.has(f.platform)
+  );
+}
+
+/* =============================================================
+   4. AGGREGATION HELPERS
+   ============================================================= */
+function aggregate(rows, keyFn){
+  const map = new Map();
+  for(const r of rows){
+    const k = keyFn(r);
+    if(!map.has(k)) map.set(k, {spend:0,impressions:0,clicks:0,apps:0,leads:0});
+    const a = map.get(k);
+    a.spend += r.spend; a.impressions += r.impressions; a.clicks += r.clicks;
+    a.apps += r.apps * STATE.appMultiplier;
+    a.leads += r.leads;
+  }
+  return map;
+}
+function totals(rows){
+  const t = {spend:0,impressions:0,clicks:0,apps:0,leads:0};
+  for(const r of rows){
+    t.spend += r.spend; t.impressions += r.impressions; t.clicks += r.clicks;
+    t.apps += r.apps * STATE.appMultiplier;
+    t.leads += r.leads;
+  }
+  return t;
+}
+function derive(t){
+  return {
+    ...t,
+    ctr: t.clicks/Math.max(1,t.impressions),
+    cpc: t.spend/Math.max(1,t.clicks),
+    cpm: t.spend/Math.max(1,t.impressions/1000),
+    cpl: t.spend/Math.max(1,t.leads),
+    cpa: t.spend/Math.max(1,t.apps),
+  };
+}
+
+/* =============================================================
+   5. FORMATTERS
+   ============================================================= */
+const fmt$  = n => isFinite(n) ? n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}) : "–";
+const fmt$2 = n => isFinite(n) ? n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}) : "–";
+const fmtN  = n => isFinite(n) ? Math.round(n).toLocaleString("en-US") : "–";
+const fmtPct= n => isFinite(n) ? (n*100).toFixed(2)+"%" : "–";
+
+/* =============================================================
+   6. RENDER FUNCTIONS — wired to the filter state
+   ============================================================= */
+const charts = {}; // hold all chart instances so we can update
+
+// 6.1 Sparklines
+function renderSparks(){
+  const rows = filteredFacts();
+  // Aggregate by month
+  const monthMap = aggregate(rows, r=>r.month);
+  // Use the months from active FY (or date range)
+  let months;
+  if(STATE.startDate && STATE.endDate){
+    months = ALL_MONTHS.filter(inDateRange);
+  } else {
+    months = ALL_MONTHS.filter(m => monthFY(m) === STATE.fy);
+  }
+  const series = months.map(m => {
+    const t = monthMap.get(m) || {spend:0,impressions:0,clicks:0,apps:0,leads:0};
+    return derive(t);
+  });
+  const labels = months.map(monthShort);
+
+  ["spend","apps","cpm","cpc","cpa"].forEach(key => {
+    const id = "sp-"+(key==="apps"?"apps":key);
+    const ctx = document.getElementById(id);
+    const data = series.map(s => s[key]);
+    const isMoney = ["spend","cpm","cpc","cpa"].includes(key);
+    const tickFmt = (v) => {
+      if(isMoney){
+        if(v >= 1000) return "$"+Math.round(v/1000)+"K";
+        return "$"+Math.round(v);
+      }
+      if(v >= 1000) return Math.round(v/1000)+"K";
+      return Math.round(v);
+    };
+    if(charts[id]){ charts[id].data.labels = labels; charts[id].data.datasets[0].data = data; charts[id].update("none"); return; }
+    charts[id] = new Chart(ctx, {
+      type:"line",
+      data:{ labels, datasets:[{
+        data, borderColor:"#57068C", backgroundColor:"#57068C22",
+        tension:0.35, fill:true, pointRadius:2, pointHoverRadius:4, pointBackgroundColor:"#57068C", borderWidth:1.6,
+      }]},
+      options:{
+        layout:{padding:{top:4,right:4,bottom:0,left:0}},
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>{
+          const v = c.parsed.y;
+          return isMoney ? fmt$2(v) : fmtN(v);
+        }}}},
+        scales:{
+          x:{
+            display:true,
+            ticks:{
+              font:{size:9}, color:"#6B5E80",
+              maxRotation:0, autoSkip:true, autoSkipPadding:8,
+              callback:function(v,i){
+                // Show only first and last tick to keep it readable
+                if(i===0 || i===labels.length-1) return labels[i];
+                return "";
+              }
+            },
+            grid:{display:false}, border:{color:"#E7E0EF"}
+          },
+          y:{
+            display:true,
+            ticks:{font:{size:9}, color:"#6B5E80", maxTicksLimit:3, callback:tickFmt},
+            grid:{color:"#F1EBF7", drawTicks:false}, border:{display:false},
+            beginAtZero: !isMoney || key==="spend" || key==="apps",
+          },
+        },
+        maintainAspectRatio:false, responsive:true,
+      }
+    });
+  });
+}
+
+// 6.2 KPI tiles
+function renderKpis(){
+  const t = derive(totals(filteredFacts()));
+  document.getElementById("kpi-impr").textContent = fmtN(t.impressions);
+  document.getElementById("kpi-ctr").textContent  = fmtPct(t.ctr);
+  document.getElementById("kpi-clk").textContent  = fmtN(t.clicks);
+  document.getElementById("kpi-cpm").textContent  = fmt$2(t.cpm);
+  document.getElementById("kpi-app").textContent  = fmtN(t.apps);
+  document.getElementById("kpi-cpa").textContent  = fmt$(t.cpa);
+  document.getElementById("kpi-spend").textContent= fmt$(t.spend);
+}
+
+// 6.3 Big bar chart — by current dimension and current metric
+const DIM_LABEL = {month:"Month",year:"Year",division:"Division",area:"Area of Study",program:"Program",platform:"Platform"};
+const DIM_KEY = {
+  month: r=>r.month,
+  year:  r=>String(r.fy),
+  division: r=>r.division,
+  area: r=>r.area,
+  program: r=>r.program,
+  platform: r=>r.platform,
+};
+function dimLabel(dim, code){
+  if(dim==="month") return monthLabel(code);
+  if(dim==="year") return "FY "+code;
+  if(dim==="division") { const d = DIVISIONS.find(x=>x.code===code); return d?d.name:code; }
+  if(dim==="area") { const a = AREAS.find(x=>x.code===code); return a?a.name:code; }
+  if(dim==="program") { const p = PROGRAMS.find(x=>x.code===code); return p?p.name:code; }
+  if(dim==="platform") { const p = PLATFORMS.find(x=>x.code===code); return p?p.name:code; }
+  return code;
+}
+
+function renderBigBar(){
+  const ctx = document.getElementById("big-bar");
+  const dim = STATE.dimension;
+  const metric = STATE.bigBarMetric;
+  const rows = filteredFacts();
+  const m = aggregate(rows, DIM_KEY[dim]);
+
+  // Sort keys
+  let keys = Array.from(m.keys());
+  if(dim==="month") {
+    keys.sort();
+  } else if(dim==="year") {
+    keys.sort();
+  } else {
+    // sort by metric desc
+    keys.sort((a,b)=> m.get(b)[metric] - m.get(a)[metric]);
+  }
+
+  // For non-time dimensions, show a horizontal bar (labels can be long).
+  const isHorizontal = dim !== "month" && dim !== "year";
+  const truncate = (s,n) => s.length>n ? s.slice(0,n-1)+"…" : s;
+  // Tooltip-friendly full labels
+  const rawLabels = keys.map(k => dim==="month" ? monthLabel(k) : dimLabel(dim,k));
+  // Display labels: compact months on vertical axis so 12 fit without overlap
+  const labels = isHorizontal
+    ? rawLabels.map(s=>truncate(s,40))
+    : keys.map(k => dim==="month" ? monthShort(k) : dimLabel(dim,k));
+  const data = keys.map(k => m.get(k)[metric]);
+  const ttlMetric = ({impressions:"Impressions",spend:"Spend",clicks:"Clicks",apps:"Paid Apps",leads:"Paid Leads"})[metric];
+  document.getElementById("bigbar-metric").textContent = ttlMetric;
+  document.getElementById("bigbar-dim").textContent = DIM_LABEL[dim];
+
+  // Size the canvas: when horizontal, take at least the container's height (so the chart
+  // fills the card), but grow taller if there are too many bars to fit comfortably.
+  // For time dimensions (vertical bars), just fill the container.
+  const body = ctx.parentElement; // .chartbody
+  const containerH = Math.max(280, body.clientHeight || 0);
+  const rowH = 26;
+  const headroom = 60; // x-axis + legend
+  const naturalH = keys.length * rowH + headroom;
+  const canvasH = isHorizontal
+    ? Math.max(containerH, naturalH)   // fill container, or grow + scroll if needed
+    : containerH;                       // vertical bars: fill the container exactly
+  ctx.style.height = canvasH + "px";
+
+  // Always destroy + recreate so axis orientation can change with dimension
+  if(charts.bigBar){ charts.bigBar.destroy(); delete charts.bigBar; }
+  const yTickFmt = (v)=>{
+    if(metric==="spend") return v>=1000?"$"+(v/1000).toFixed(0)+"K":"$"+v;
+    return v>=1e6?(v/1e6)+"M":v>=1000?(v/1000)+"K":v;
+  };
+  const barThickness = isHorizontal ? 16 : (dim==="month"?24:14);
+  charts.bigBar = new Chart(ctx, {
+    type:"bar",
+    data:{ labels, datasets:[{ label:ttlMetric, data, backgroundColor:"#57068C", borderRadius:3, barThickness }]},
+    options:{
+      indexAxis: isHorizontal ? "y" : "x",
+      plugins:{ legend:{display:true,align:"start",labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{ callbacks:{
+          title: (items)=> rawLabels[items[0].dataIndex],
+          label:(c)=>{
+            const v = c.parsed.y ?? c.parsed.x;
+            return metric==="spend" ? fmt$(v) : fmtN(v);
+        }}}
+      },
+      scales: isHorizontal ? {
+        y:{ ticks:{font:{size:10},color:"#3B2E50",autoSkip:false}, grid:{display:false} },
+        x:{ ticks:{font:{size:10},color:"#6B5E80",callback:yTickFmt}, grid:{color:"#E7E0EF"}, beginAtZero:true },
+      } : {
+        x:{ ticks:{font:{size:10},color:"#6B5E80",maxRotation:35,minRotation:0,autoSkip:true,autoSkipPadding:6}, grid:{display:false} },
+        y:{ ticks:{font:{size:10},color:"#6B5E80",callback:yTickFmt}, grid:{color:"#E7E0EF"} },
+      },
+      maintainAspectRatio:false, responsive:true,
+    }
+  });
+}
+
+// 6.4 Metrics table by dimension
+function renderMetricsTable(tbodyId, tfootId, thId, countId){
+  const tbody = document.getElementById(tbodyId);
+  const tfoot = document.getElementById(tfootId);
+  if(thId){
+    const dim = STATE.dimension;
+    document.getElementById(thId).innerHTML = DIM_LABEL[dim] + " ▴";
+    document.getElementById("table-dim-label").textContent = DIM_LABEL[dim];
+  }
+  const rows = filteredFacts();
+  const dim = STATE.dimension;
+  const m = aggregate(rows, DIM_KEY[dim]);
+
+  // For "apps" heat scaling, compute max
+  let allApps = Array.from(m.values()).map(t => t.apps);
+  const maxApps = Math.max(0.01, ...allApps);
+
+  // Sort
+  let keys = Array.from(m.keys());
+  if(dim==="month" || dim==="year") keys.sort();
+  else keys.sort((a,b)=> m.get(b).apps - m.get(a).apps);
+
+  if(countId){
+    const subEl = document.getElementById(countId);
+    if(subEl) subEl.textContent = `DIMENSION: ${DIM_LABEL[dim].toUpperCase()} · ${keys.length} ROWS`;
+  }
+
+  tbody.innerHTML = "";
+  let sums = {spend:0,impressions:0,clicks:0,leads:0,apps:0};
+  if(keys.length===0){
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No data for the current filters — try selecting more options.</td></tr>`;
+    tfoot.innerHTML = "";
+    return;
+  }
+  keys.forEach(k => {
+    const t = derive(m.get(k));
+    sums.spend+=t.spend; sums.impressions+=t.impressions; sums.clicks+=t.clicks; sums.leads+=t.leads; sums.apps+=t.apps;
+    const intensity = t.apps/maxApps;
+    const klass = intensity<.2?"h0":intensity<.4?"h1":intensity<.6?"h2":intensity<.8?"h3":"h4";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${dim==="month" ? monthLabel(k) : dimLabel(dim,k)}</td>
+      <td>${fmt$(t.spend)}</td>
+      <td>${fmtN(t.impressions)}</td>
+      <td>${fmtN(t.clicks)}</td>
+      <td>${fmtPct(t.ctr)}</td>
+      <td>${fmt$2(t.cpc)}</td>
+      <td>${fmt$2(t.cpm)}</td>
+      <td>${fmtN(t.leads)}</td>
+      <td>${fmt$(t.cpl)}</td>
+      <td><span class="heatcell ${klass}">${fmtN(t.apps)}</span></td>
+      <td>${fmt$(t.cpa)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  const tT = derive(sums);
+  tfoot.innerHTML = `<tr>
+    <td>Grand total</td>
+    <td>${fmt$(tT.spend)}</td>
+    <td>${fmtN(tT.impressions)}</td>
+    <td>${fmtN(tT.clicks)}</td>
+    <td>${fmtPct(tT.ctr)}</td>
+    <td>${fmt$2(tT.cpc)}</td>
+    <td>${fmt$2(tT.cpm)}</td>
+    <td>${fmtN(tT.leads)}</td>
+    <td>${fmt$(tT.cpl)}</td>
+    <td>${fmtN(tT.apps)}</td>
+    <td>${fmt$(tT.cpa)}</td>
+  </tr>`;
+}
+
+// 6.5 Pivot Division × Month (Paid Apps)
+function renderPivot(){
+  const rows = filteredFacts();
+  // months in active range
+  let months;
+  if(STATE.startDate && STATE.endDate){
+    months = ALL_MONTHS.filter(inDateRange);
+  } else {
+    months = ALL_MONTHS.filter(m => monthFY(m) === STATE.fy);
+  }
+  const divCodes = DIVISIONS.filter(d=>STATE.division.has(d.code)).map(d=>d.code);
+
+  // aggregate apps by division × month
+  const m = new Map();
+  rows.forEach(r => {
+    const k = r.division+"|"+r.month;
+    m.set(k, (m.get(k)||0) + r.apps * STATE.appMultiplier);
+  });
+
+  const data = {};
+  divCodes.forEach(dc => data[dc] = months.map(mo => m.get(dc+"|"+mo) || 0));
+  const all = divCodes.flatMap(dc => data[dc]);
+  const maxv = Math.max(0.01, ...all);
+  const heatClass = v => {
+    if(v<=0) return "";
+    const t = v/maxv;
+    return t<.2?"h0":t<.4?"h1":t<.6?"h2":t<.8?"h3":"h4";
+  };
+
+  const table = document.getElementById("pivot-table");
+  if(divCodes.length===0 || months.length===0){
+    table.innerHTML = `<tbody><tr><td class="empty-state" style="padding:30px">No divisions or months in current filter.</td></tr></tbody>`;
+    return;
+  }
+  let html = "<thead><tr><th>Division</th>";
+  months.forEach(mo => html += `<th>${monthShort(mo)}</th>`);
+  html += `<th>Total</th></tr></thead><tbody>`;
+  const colTotals = months.map(()=>0);
+  divCodes.forEach(dc => {
+    const div = DIVISIONS.find(x=>x.code===dc);
+    html += `<tr><td>${div.name}</td>`;
+    let rowT = 0;
+    data[dc].forEach((v,i)=>{
+      const r = Math.round(v);
+      rowT += r;
+      colTotals[i] += r;
+      html += `<td>${r===0?"–":`<span class="heatcell ${heatClass(v)}">${r}</span>`}</td>`;
+    });
+    html += `<td><b>${rowT}</b></td></tr>`;
+  });
+  html += `</tbody><tfoot><tr><td>Grand total</td>`;
+  colTotals.forEach(c=> html += `<td><b>${c}</b></td>`);
+  html += `<td><b>${colTotals.reduce((a,b)=>a+b,0)}</b></td></tr></tfoot>`;
+  table.innerHTML = html;
+}
+
+// 6.6 Spend by Platform
+function renderPlatformBar(){
+  const rows = filteredFacts();
+  const m = aggregate(rows, r=>r.platform);
+  // Show all selected platforms, sorted by spend
+  const items = PLATFORMS.filter(p=>STATE.platform.has(p.code)).map(p => ({
+    code:p.code, name:p.name, spend: (m.get(p.code)||{spend:0}).spend
+  })).sort((a,b)=>b.spend-a.spend);
+
+  const ctx = document.getElementById("bar-platform");
+  // Fill container; grow + scroll if many bars wouldn't otherwise fit
+  const body = ctx.parentElement;
+  const containerH = Math.max(280, body.clientHeight || 0);
+  const naturalH = items.length * 26 + 60;
+  ctx.style.height = Math.max(containerH, naturalH) + "px";
+
+  if(charts.platform){
+    charts.platform.data.labels = items.map(d=>d.name);
+    charts.platform.data.datasets[0].data = items.map(d=>d.spend);
+    charts.platform.update();
+    return;
+  }
+  charts.platform = new Chart(ctx, {
+    type:"bar",
+    data:{ labels: items.map(d=>d.name), datasets:[{label:"Spend", data: items.map(d=>d.spend), backgroundColor:"#57068C", borderRadius:3, barThickness:16}]},
+    options:{
+      indexAxis:"y",
+      plugins:{ legend:{display:true,align:"start",labels:{boxWidth:10,font:{size:11}}}, tooltip:{callbacks:{label:c=>fmt$(c.parsed.x)}} },
+      scales:{
+        x:{ ticks:{font:{size:10},color:"#6B5E80", callback:v=>"$"+(v>=1000?(v/1000)+"K":v)}, grid:{color:"#E7E0EF"}, beginAtZero:true },
+        y:{ ticks:{font:{size:11},color:"#3B2E50",autoSkip:false}, grid:{display:false} },
+      },
+      maintainAspectRatio:false, responsive:true,
+    }
+  });
+}
+
+// 6.7 Spend by Campaign (top 11)
+function renderCampaignBar(){
+  const filteredCamps = CAMPAIGNS.filter(c =>
+    inDateRange(c.month) &&
+    STATE.division.has(c.division) &&
+    STATE.program.has(c.program) &&
+    STATE.area.has(c.area) &&
+    STATE.platform.has(c.platform)
+  );
+  const key = c => `${c.program} | ${c.division} | ${c.platform} | ${c.audience}`;
+  const m = new Map();
+  filteredCamps.forEach(c => m.set(key(c), (m.get(key(c))||0) + c.spend));
+  const items = Array.from(m.entries()).map(([name,spend])=>({name,spend}))
+    .sort((a,b)=>b.spend-a.spend).slice(0,11);
+
+  const ctx = document.getElementById("bar-campaign");
+  const labels = items.map(d=>d.name.length>38?d.name.slice(0,37)+"…":d.name);
+  const data = items.map(d=>d.spend);
+
+  // Fill container; grow + scroll if many bars wouldn't otherwise fit
+  const body = ctx.parentElement;
+  const containerH = Math.max(280, body.clientHeight || 0);
+  const naturalH = items.length * 26 + 60;
+  ctx.style.height = Math.max(containerH, naturalH) + "px";
+
+  if(charts.campaign){
+    charts.campaign.data.labels = labels;
+    charts.campaign.data.datasets[0].data = data;
+    charts.campaign.update();
+    return;
+  }
+  charts.campaign = new Chart(ctx, {
+    type:"bar",
+    data:{ labels, datasets:[{label:"Spend", data, backgroundColor:"#57068C", borderRadius:3, barThickness:16}]},
+    options:{
+      indexAxis:"y",
+      plugins:{ legend:{display:true,align:"start",labels:{boxWidth:10,font:{size:11}}}, tooltip:{callbacks:{label:c=>fmt$(c.parsed.x)}} },
+      scales:{
+        x:{ ticks:{font:{size:10},color:"#6B5E80", callback:v=>"$"+(v>=1000?(v/1000)+"K":v)}, grid:{color:"#E7E0EF"}, beginAtZero:true },
+        y:{ ticks:{font:{size:10},color:"#3B2E50",autoSkip:false}, grid:{display:false} },
+      },
+      maintainAspectRatio:false, responsive:true,
+    }
+  });
+}
+
+// 6.8 Page 2: Paid apps bar (sorted)
+function renderP2PaidApps(){
+  const rows = filteredFacts();
+  const monthMap = aggregate(rows, r=>r.month);
+  let months;
+  if(STATE.startDate && STATE.endDate){ months = ALL_MONTHS.filter(inDateRange); }
+  else { months = ALL_MONTHS.filter(m => monthFY(m) === STATE.fy); }
+  const items = months.map(mo => ({
+    label: monthLabel(mo),
+    v: (monthMap.get(mo) || {apps:0}).apps,
+  })).sort((a,b)=>b.v-a.v);
+
+  const ctx = document.getElementById("p2-paid-apps");
+  const labels = items.map(d=>d.label);
+  const data = items.map(d=>d.v);
+
+  // Fill container; grow + scroll if many bars wouldn't otherwise fit
+  const body = ctx.parentElement;
+  const containerH = Math.max(280, body.clientHeight || 0);
+  const naturalH = items.length * 26 + 60;
+  ctx.style.height = Math.max(containerH, naturalH) + "px";
+
+  if(charts.p2pa){
+    charts.p2pa.data.labels = labels;
+    charts.p2pa.data.datasets[0].data = data;
+    charts.p2pa.update();
+    return;
+  }
+  charts.p2pa = new Chart(ctx, {
+    type:"bar",
+    data:{ labels, datasets:[{label:"Paid Apps", data, backgroundColor:"#57068C", borderRadius:3, barThickness:16}]},
+    options:{
+      indexAxis:"y",
+      plugins:{ legend:{display:true,align:"start",labels:{boxWidth:10,font:{size:11}}}, tooltip:{callbacks:{label:c=>fmtN(c.parsed.x)}} },
+      scales:{
+        x:{ ticks:{font:{size:10},color:"#6B5E80"}, grid:{color:"#E7E0EF"}, beginAtZero:true },
+        y:{ ticks:{font:{size:10},color:"#3B2E50",autoSkip:false}, grid:{display:false} },
+      },
+      maintainAspectRatio:false, responsive:true,
+    }
+  });
+}
+
+// 6.9 YoY line
+function renderYoyLine(){
+  const rowsCur = filteredFacts();
+  const rowsPri = priorYearFacts();
+  // map by month-of-year (1-12)
+  // Align: current FY months Jul..Jun vs prior Jul..Jun
+  const months = ALL_MONTHS.filter(m => monthFY(m) === STATE.fy);
+  const prior  = ALL_MONTHS.filter(m => monthFY(m) === STATE.fy - 1);
+
+  const curMap = aggregate(rowsCur, r=>r.month);
+  const priMap = aggregate(rowsPri, r=>r.month);
+  const cur = months.map(mo => (curMap.get(mo) || {apps:0}).apps);
+  const pri = prior.map(mo => (priMap.get(mo) || {apps:0}).apps);
+  const labels = months.map(monthLabel);
+
+  const ctx = document.getElementById("p2-yoy-line");
+  if(charts.yoyLine){
+    charts.yoyLine.data.labels = labels;
+    charts.yoyLine.data.datasets[0].data = cur;
+    charts.yoyLine.data.datasets[1].data = pri;
+    charts.yoyLine.update();
+    return;
+  }
+  charts.yoyLine = new Chart(ctx, {
+    type:"line",
+    data:{ labels, datasets:[
+      {label:"Paid Apps", data:cur, borderColor:"#57068C", backgroundColor:"#57068C", tension:0.25, pointRadius:4, pointBackgroundColor:"#57068C", borderWidth:2},
+      {label:"Paid Apps (previous year)", data:pri, borderColor:"#B98EDB", backgroundColor:"#B98EDB", tension:0.25, pointRadius:4, pointBackgroundColor:"#B98EDB", borderWidth:2, borderDash:[2,2]},
+    ]},
+    options:{
+      plugins:{ legend:{display:true,align:"start",labels:{boxWidth:14,font:{size:11}}} },
+      scales:{
+        x:{ ticks:{font:{size:10},color:"#6B5E80"}, grid:{display:false} },
+        y:{ ticks:{font:{size:10},color:"#6B5E80"}, grid:{color:"#E7E0EF"}, beginAtZero:true },
+      },
+      maintainAspectRatio:false, responsive:true,
+    }
+  });
+}
+
+// 6.10 YoY tables
+function fmtDelta(d, fmt){
+  if(!isFinite(d) || Math.abs(d) < 0.5) return "–";
+  const up = d>0;
+  return `<span class="${up?"up":"down"}">${up?"+":""}${fmt(d)}<span class="arrow">${up?"▲":"▼"}</span></span>`;
+}
+function buildYoyRowsFromFacts(curRows, priRows, keyFn, labelFn){
+  const cur = aggregate(curRows, keyFn);
+  const pri = aggregate(priRows, keyFn);
+  const allKeys = new Set([...cur.keys(), ...pri.keys()]);
+  const result = [];
+  allKeys.forEach(k => {
+    const c = derive(cur.get(k) || {spend:0,impressions:0,clicks:0,apps:0,leads:0});
+    const p = derive(pri.get(k) || {spend:0,impressions:0,clicks:0,apps:0,leads:0});
+    result.push({
+      label: labelFn(k),
+      ...c,
+      dSpend: c.spend - p.spend,
+      dApps: c.apps - p.apps,
+      dImpr: c.impressions - p.impressions,
+      dClk: c.clicks - p.clicks,
+      dCtr: c.ctr - p.ctr,
+      dCpm: c.cpm - p.cpm,
+      dLeads: c.leads - p.leads,
+      dCpl: c.cpl - p.cpl,
+      dCpa: c.cpa - p.cpa,
+    });
+  });
+  // filter out rows that are completely zero in current
+  return result.filter(r => r.spend > 0 || r.apps > 0 || r.impressions > 0);
+}
+function yoyTableHTML(rows){
+  if(rows.length===0) return `<tbody><tr><td class="empty-state" colspan="19" style="padding:24px;text-align:center">No data.</td></tr></tbody>`;
+  let html = `<thead><tr>
+    <th></th>
+    <th>Spend</th><th class="delta">Δ</th>
+    <th>Paid Apps ▾</th><th class="delta">Δ</th>
+    <th>Impressions</th><th class="delta">Δ</th>
+    <th>Clicks</th><th class="delta">Δ</th>
+    <th>CTR</th><th class="delta">Δ</th>
+    <th>CPM</th><th class="delta">Δ</th>
+    <th>Paid Leads</th><th class="delta">Δ</th>
+    <th>CPL</th><th class="delta">Δ</th>
+    <th>CPA</th><th class="delta">Δ</th>
+  </tr></thead><tbody>`;
+  rows.sort((a,b)=>b.apps-a.apps);
+  rows.forEach(r=>{
+    html += `<tr>
+      <td>${r.label}</td>
+      <td>${fmt$(r.spend)}</td><td class="delta">${fmtDelta(r.dSpend, fmt$)}</td>
+      <td>${fmtN(r.apps)}</td><td class="delta">${fmtDelta(r.dApps, fmtN)}</td>
+      <td>${fmtN(r.impressions)}</td><td class="delta">${fmtDelta(r.dImpr, fmtN)}</td>
+      <td>${fmtN(r.clicks)}</td><td class="delta">${fmtDelta(r.dClk, fmtN)}</td>
+      <td>${(r.ctr*100).toFixed(2)}%</td><td class="delta">${fmtDelta(r.dCtr*100, x=>x.toFixed(2)+"%")}</td>
+      <td>${fmt$2(r.cpm)}</td><td class="delta">${fmtDelta(r.dCpm, fmt$2)}</td>
+      <td>${fmtN(r.leads)}</td><td class="delta">${fmtDelta(r.dLeads, fmtN)}</td>
+      <td>${fmt$(r.cpl)}</td><td class="delta">${fmtDelta(r.dCpl, fmt$)}</td>
+      <td>${fmt$(r.cpa)}</td><td class="delta">${fmtDelta(r.dCpa, fmt$)}</td>
+    </tr>`;
+  });
+  // totals
+  const t = rows.reduce((a,r)=>({
+    spend:a.spend+r.spend, apps:a.apps+r.apps, impressions:a.impressions+r.impressions, clicks:a.clicks+r.clicks, leads:a.leads+r.leads,
+    dSpend:a.dSpend+r.dSpend, dApps:a.dApps+r.dApps, dImpr:a.dImpr+r.dImpr, dClk:a.dClk+r.dClk, dLeads:a.dLeads+r.dLeads,
+  }), {spend:0,apps:0,impressions:0,clicks:0,leads:0,dSpend:0,dApps:0,dImpr:0,dClk:0,dLeads:0});
+  const tCtr = t.clicks/Math.max(1,t.impressions);
+  const tCpm = t.spend/Math.max(1,t.impressions/1000);
+  const tCpl = t.spend/Math.max(1,t.leads);
+  const tCpa = t.spend/Math.max(1,t.apps);
+  html += `</tbody><tfoot><tr>
+    <td>Grand total</td>
+    <td>${fmt$(t.spend)}</td><td class="delta">${fmtDelta(t.dSpend, fmt$)}</td>
+    <td>${fmtN(t.apps)}</td><td class="delta">${fmtDelta(t.dApps, fmtN)}</td>
+    <td>${fmtN(t.impressions)}</td><td class="delta">${fmtDelta(t.dImpr, fmtN)}</td>
+    <td>${fmtN(t.clicks)}</td><td class="delta">${fmtDelta(t.dClk, fmtN)}</td>
+    <td>${(tCtr*100).toFixed(2)}%</td><td class="delta">–</td>
+    <td>${fmt$2(tCpm)}</td><td class="delta">–</td>
+    <td>${fmtN(t.leads)}</td><td class="delta">${fmtDelta(t.dLeads, fmtN)}</td>
+    <td>${fmt$(tCpl)}</td><td class="delta">–</td>
+    <td>${fmt$(tCpa)}</td><td class="delta">–</td>
+  </tr></tfoot>`;
+  return html;
+}
+function renderYoyTables(){
+  const cur = filteredFacts();
+  const pri = priorYearFacts();
+
+  // By Division
+  const divRows = buildYoyRowsFromFacts(cur, pri, r=>r.division, k => {
+    const d = DIVISIONS.find(x=>x.code===k); return d ? d.name : k;
+  });
+  document.getElementById("yoy-div").innerHTML = yoyTableHTML(divRows);
+  document.getElementById("yoy-div-count").textContent = `${divRows.length} ROWS`;
+
+  // By Area
+  const areaRows = buildYoyRowsFromFacts(cur, pri, r=>r.area, k => {
+    const a = AREAS.find(x=>x.code===k); return a ? a.name : k;
+  });
+  document.getElementById("yoy-area").innerHTML = yoyTableHTML(areaRows);
+  document.getElementById("yoy-area-count").textContent = `${areaRows.length} ROWS`;
+
+  // By Program
+  const progRows = buildYoyRowsFromFacts(cur, pri, r=>r.program, k => {
+    const p = PROGRAMS.find(x=>x.code===k); return p ? p.name : k;
+  });
+  document.getElementById("yoy-prog").innerHTML = yoyTableHTML(progRows);
+  document.getElementById("yoy-prog-count").textContent = `${progRows.length} ROWS`;
+
+  // By Platform
+  const platRows = buildYoyRowsFromFacts(cur, pri, r=>r.platform, k => {
+    const p = PLATFORMS.find(x=>x.code===k); return p ? p.name : k;
+  });
+  document.getElementById("yoy-plat").innerHTML = yoyTableHTML(platRows);
+  document.getElementById("yoy-plat-count").textContent = `${platRows.length} ROWS`;
+
+  // By Campaign (top 12)
+  const curCamps = CAMPAIGNS.filter(c => inDateRange(c.month) && STATE.division.has(c.division) && STATE.program.has(c.program) && STATE.area.has(c.area) && STATE.platform.has(c.platform));
+  const priCamps = CAMPAIGNS.filter(c => c.fy === STATE.fy-1 && STATE.division.has(c.division) && STATE.program.has(c.program) && STATE.area.has(c.area) && STATE.platform.has(c.platform));
+  const campKey = c => `${c.program} | ${c.division} | ${c.platform} | ${c.audience}`;
+  const allCampRows = buildYoyRowsFromFacts(curCamps, priCamps, campKey, k => k);
+  allCampRows.sort((a,b)=>b.apps-a.apps);
+  const topCampRows = allCampRows.slice(0,12);
+  document.getElementById("yoy-camp").innerHTML = yoyTableHTML(topCampRows);
+  document.getElementById("yoy-camp-count").textContent = `TOP ${Math.min(12,allCampRows.length)} SHOWN · ${allCampRows.length} TOTAL`;
+}
+
+/* =============================================================
+   7. MASTER RENDER (called on any filter change)
+   ============================================================= */
+function renderAll(){
+  // Page 1
+  renderSparks();
+  renderKpis();
+  renderBigBar();
+  renderMetricsTable("metrics-tbody","metrics-tfoot","th-dim","table-count");
+  renderPivot();
+  renderPlatformBar();
+  renderCampaignBar();
+  // Page 2
+  renderMetricsTable("p2-metrics-tbody","p2-metrics-tfoot", null, null);
+  renderP2PaidApps();
+  renderYoyLine();
+  renderYoyTables();
+  // Update FY/date label
+  if(STATE.startDate && STATE.endDate){
+    document.getElementById("fy-val").textContent = "Custom";
+    document.getElementById("dr-val").textContent = formatDate(STATE.startDate)+" — "+formatDate(STATE.endDate);
+  } else {
+    document.getElementById("fy-val").textContent = `FY ${STATE.fy} (1)`;
+    const start = `${STATE.fy-1}-07-01`, end = `${STATE.fy}-06-30`;
+    document.getElementById("dr-val").textContent = `${formatDate(start)} — ${formatDate(end)}`;
+  }
+  document.getElementById("years-for-chart").textContent = `${STATE.fy-2}, ${STATE.fy-1}, ${STATE.fy}`;
+}
+
+function formatDate(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${months[m-1]} ${d}, ${y}`;
+}
+
+/* =============================================================
+   8. DROPDOWN UI
+   ============================================================= */
+const FILTER_OPTIONS = {
+  division: DIVISIONS.map(d => ({code:d.code, name:d.name, codepill:d.code})),
+  program:  PROGRAMS.map(p => ({code:p.code, name:p.name, codepill:p.code})),
+  area:     AREAS.map(a => ({code:a.code, name:a.name, codepill:a.code})),
+  platform: PLATFORMS.map(p => ({code:p.code, name:p.name, codepill:p.code})),
+};
+
+function populateDropdowns(){
+  Object.entries(FILTER_OPTIONS).forEach(([key, opts]) => {
+    const list = document.querySelector(`.ddlmenu[data-filter="${key}"] .ddllist`);
+    list.innerHTML = opts.map(o => `
+      <label data-code="${o.code}" data-search="${(o.code+" "+o.name).toLowerCase()}">
+        <input type="checkbox" ${STATE[key].has(o.code)?"checked":""} />
+        <span class="codepill">${o.codepill}</span>
+        <span>${o.name}</span>
+      </label>
+    `).join("");
+  });
+}
+
+function updateSummary(key){
+  const total = FILTER_OPTIONS[key].length;
+  const sel = STATE[key].size;
+  const el = document.getElementById("sum-"+key);
+  if(sel === 0) el.textContent = "None";
+  else if(sel === total) el.textContent = `All (${total})`;
+  else el.textContent = `${sel} of ${total}`;
+}
+
+function hookDropdowns(){
+  document.querySelectorAll(".ddl").forEach(ddl => {
+    const key = ddl.dataset.filter;
+
+    // Toggle open
+    ddl.addEventListener("click", (e) => {
+      if(e.target.closest(".ddlmenu")) return;
+      const wasOpen = ddl.classList.contains("open");
+      document.querySelectorAll(".ddl").forEach(x=>x.classList.remove("open"));
+      if(!wasOpen) ddl.classList.add("open");
+    });
+
+    const menu = ddl.querySelector(".ddlmenu");
+    const search = menu.querySelector("input[type=text]");
+    const list = menu.querySelector(".ddllist");
+
+    // Filter rows on search
+    search.addEventListener("input", () => {
+      const q = search.value.toLowerCase().trim();
+      list.querySelectorAll("label").forEach(lb => {
+        lb.style.display = !q || lb.dataset.search.includes(q) ? "" : "none";
+      });
+    });
+
+    // All / None
+    menu.querySelectorAll(".ddlhead button").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const act = btn.dataset.act;
+        list.querySelectorAll("label").forEach(lb => {
+          if(lb.style.display === "none") return; // respect current search filter
+          const cb = lb.querySelector("input");
+          cb.checked = (act === "all");
+          if(act==="all") STATE[key].add(lb.dataset.code);
+          else STATE[key].delete(lb.dataset.code);
+        });
+        updateSummary(key);
+        renderAll();
+      });
+    });
+
+    // Per-row toggle
+    list.addEventListener("change", (e) => {
+      if(e.target.matches('input[type=checkbox]')){
+        const lb = e.target.closest("label");
+        const code = lb.dataset.code;
+        if(e.target.checked) STATE[key].add(code);
+        else STATE[key].delete(code);
+        updateSummary(key);
+        renderAll();
+      }
+    });
+  });
+
+  // Click outside closes
+  document.addEventListener("click", (e) => {
+    if(!e.target.closest(".ddl")) document.querySelectorAll(".ddl").forEach(x=>x.classList.remove("open"));
+    if(!e.target.closest(".dim-select") && !e.target.closest(".dim-pop")) document.getElementById("dim-pop").classList.remove("open");
+    if(!e.target.closest("#bigbar-metric-trigger") && !e.target.closest("#bigbar-metric-pop")) document.getElementById("bigbar-metric-pop").classList.remove("open");
+    if(!e.target.closest("#mult-pill")) document.getElementById("mult-pop").classList.remove("open");
+    if(!e.target.closest(".dateblock") && !e.target.closest("#datepop")) document.getElementById("datepop").style.display = "none";
+  });
+}
+
+function hookDimSelect(){
+  document.getElementById("dim-select").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("dim-pop").classList.toggle("open");
+  });
+  document.querySelectorAll("#dim-pop button").forEach(b => {
+    b.addEventListener("click", () => {
+      STATE.dimension = b.dataset.dim;
+      document.querySelectorAll("#dim-pop button").forEach(x => {
+        x.classList.toggle("active", x===b);
+        x.querySelector(".check").textContent = x===b ? "✓" : "";
+      });
+      document.getElementById("dim-label").textContent = DIM_LABEL[STATE.dimension];
+      document.getElementById("dim-pop").classList.remove("open");
+      renderBigBar();
+      renderMetricsTable("metrics-tbody","metrics-tfoot","th-dim","table-count");
+    });
+  });
+}
+
+function hookBigBarMetric(){
+  document.getElementById("bigbar-metric-trigger").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("bigbar-metric-pop").classList.toggle("open");
+  });
+  document.querySelectorAll("#bigbar-metric-pop button").forEach(b => {
+    b.addEventListener("click", () => {
+      STATE.bigBarMetric = b.dataset.m;
+      document.querySelectorAll("#bigbar-metric-pop button").forEach(x => x.classList.toggle("active", x===b));
+      document.getElementById("bigbar-metric-pop").classList.remove("open");
+      // Need to recreate chart because Y-axis formatting depends on metric
+      if(charts.bigBar){ charts.bigBar.destroy(); delete charts.bigBar; }
+      renderBigBar();
+    });
+  });
+}
+
+function hookMultiplier(){
+  const pill = document.getElementById("mult-pill");
+  const pop = document.getElementById("mult-pop");
+  const inp = document.getElementById("mult-input");
+  pill.addEventListener("click", (e) => {
+    if(e.target.closest(".multpop")) return;
+    pop.classList.toggle("open");
+  });
+  inp.addEventListener("change", () => {
+    const v = parseFloat(inp.value);
+    if(!isFinite(v) || v<=0) return;
+    STATE.appMultiplier = v;
+    document.getElementById("mult-val").textContent = v.toFixed(2);
+    renderAll();
+  });
+}
+
+function hookDate(){
+  const fy = document.getElementById("fy-sel");
+  const dr = document.getElementById("dr-sel");
+  const pop = document.getElementById("datepop");
+  fy.addEventListener("click", (e) => { e.stopPropagation(); pop.style.display = pop.style.display==="block" ? "none" : "block"; });
+  dr.addEventListener("click", (e) => { e.stopPropagation(); pop.style.display = pop.style.display==="block" ? "none" : "block"; });
+
+  document.getElementById("date-cancel").addEventListener("click", () => { pop.style.display="none"; });
+  document.getElementById("date-apply").addEventListener("click", () => {
+    const fyVal = +document.getElementById("fy-select").value;
+    const start = document.getElementById("dr-start").value;
+    const end = document.getElementById("dr-end").value;
+    const defaultStart = `${fyVal-1}-07-01`, defaultEnd = `${fyVal}-06-30`;
+    if(start !== defaultStart || end !== defaultEnd){
+      STATE.startDate = start; STATE.endDate = end;
+    } else {
+      STATE.startDate = null; STATE.endDate = null;
+    }
+    STATE.fy = fyVal;
+    pop.style.display="none";
+    renderAll();
+  });
+}
+
+function hookReset(){
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    STATE.fy = 2026;
+    STATE.startDate = null; STATE.endDate = null;
+    STATE.division = new Set(DIVISIONS.map(d=>d.code));
+    STATE.program  = new Set(PROGRAMS.map(p=>p.code));
+    STATE.area     = new Set(AREAS.map(a=>a.code));
+    STATE.platform = new Set(PLATFORMS.map(p=>p.code));
+    STATE.appMultiplier = 1.00;
+    STATE.dimension = "month";
+    STATE.bigBarMetric = "impressions";
+
+    document.getElementById("mult-input").value = "1.00";
+    document.getElementById("mult-val").textContent = "1.00";
+    document.getElementById("fy-select").value = "2026";
+    document.getElementById("dr-start").value = "2025-07-01";
+    document.getElementById("dr-end").value = "2026-06-30";
+    document.getElementById("dim-label").textContent = "Month Yr";
+    document.querySelectorAll("#dim-pop button").forEach(b => {
+      const isMonth = b.dataset.dim==="month";
+      b.classList.toggle("active", isMonth);
+      b.querySelector(".check").textContent = isMonth ? "✓" : "";
+    });
+    document.querySelectorAll("#bigbar-metric-pop button").forEach(b => b.classList.toggle("active", b.dataset.m==="impressions"));
+
+    populateDropdowns();
+    Object.keys(FILTER_OPTIONS).forEach(updateSummary);
+    if(charts.bigBar){ charts.bigBar.destroy(); delete charts.bigBar; }
+    renderAll();
+  });
+}
+
+/* =============================================================
+   9. PAGE SWITCH
+   ============================================================= */
+function setPage(n){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+n).classList.add("active");
+  document.querySelectorAll(".pagerail button").forEach(b=>b.classList.toggle("active", b.dataset.page===String(n)));
+  document.getElementById("crumb-page").textContent = n==="1"?"Overall Performance":"Year over Year Change";
+  // Charts that were hidden may need a resize tick
+  setTimeout(()=>{ Object.values(charts).forEach(c=>c.resize&&c.resize()); }, 50);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+document.querySelectorAll(".pagerail button").forEach(b => b.addEventListener("click", () => setPage(b.dataset.page)));
+
+/* =============================================================
+   10. INIT
+   ============================================================= */
+window.addEventListener("DOMContentLoaded", () => {
+  populateDropdowns();
+  Object.keys(FILTER_OPTIONS).forEach(updateSummary);
+  hookDropdowns();
+  hookDimSelect();
+  hookBigBarMetric();
+  hookMultiplier();
+  hookDate();
+  hookReset();
+  renderAll();
+});
+</script>
+
+</body>
+</html>
