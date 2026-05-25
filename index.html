@@ -378,6 +378,129 @@
   .empty-state{
     padding:40px 20px;text-align:center;color:var(--ink-3);font-family:"Fraunces",serif;font-style:italic;font-size:14px;
   }
+
+  /* =====================================================
+     RESPONSIVE — tablet (≤960px) and phone (≤640px)
+     ===================================================== */
+
+  /* Make wide YoY tables horizontally scrollable on any narrow screen */
+  .yoytable{overflow-x:auto}
+  .yoytable table{min-width:880px}
+
+  /* TABLET: ≤ 960px */
+  @media (max-width: 960px){
+    .shell{padding:16px 14px 36px}
+
+    /* Topbar — let it wrap when needed */
+    .topbar{grid-template-columns:1fr;gap:12px}
+    .brand{justify-content:flex-start}
+    .dateblock{flex-wrap:wrap}
+    .filtergrid{grid-template-columns:1fr 1fr}
+
+    /* Breakdown bar — segmented control wraps */
+    .breakdown-bar{gap:10px}
+    .seg{flex-wrap:wrap}
+
+    /* Main grid: stack into a single column */
+    .grid-main{grid-template-columns:1fr;gap:12px}
+    /* Sparkline column becomes a horizontal row of cards */
+    .sparkcol{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+    }
+    .sparkcard{min-height:130px}
+    .refresh{grid-column:1 / -1}
+
+    /* KPI frame: stays single column but shorter */
+    .kpiframe{min-height:auto}
+    .kpis{min-height:520px}
+
+    /* Page 1 side-by-side bar cards stack */
+    .sxs{grid-template-columns:1fr;gap:12px}
+
+    /* Page 2 stacks */
+    .p2-top{grid-template-columns:1fr;gap:12px}
+  }
+
+  /* PHONE: ≤ 640px */
+  @media (max-width: 640px){
+    .shell{padding:12px 10px 28px}
+
+    /* App bar tightens */
+    .appbar{padding:4px 4px 12px;flex-wrap:wrap;gap:8px}
+    .crumb .title{font-size:15px}
+    .crumb .page{font-size:13px}
+    .appbar .mark{width:30px;height:30px;font-size:15px;border-radius:7px}
+    .appbar .actions .btn{padding:6px 10px;font-size:12px}
+
+    /* Tighten the layout shell */
+    .layout{grid-template-columns:36px 1fr;gap:10px}
+    .pagerail button{width:26px;height:26px;font-size:11px}
+
+    .banner{font-size:11px;padding:6px 10px}
+
+    /* Topbar elements */
+    .brand .torch{width:36px;height:36px;font-size:12px}
+    .brand .lockup .nyu{font-size:18px}
+    .brand .lockup .sub{font-size:10px}
+    .dateblock{padding:6px 8px;gap:6px}
+    .dateblock .sel .lbl{font-size:9px}
+    .dateblock .sel .val{font-size:12px}
+    .dateblock .or{font-size:12px}
+
+    /* Filters stack to a single column */
+    .filtergrid{grid-template-columns:1fr}
+    .ddl{min-width:0;width:100%}
+    .ddlmenu{min-width:0;width:100%;max-width:none}
+
+    /* Date popup goes full width relative to its container */
+    .datepop{min-width:0;width:calc(100vw - 40px);max-width:320px}
+
+    /* Breakdown bar */
+    .breakdown-bar{padding:12px 14px;gap:8px}
+    .breakdown-bar-left .eyebrow{font-size:10px}
+    .breakdown-bar-left .breakdown-hint{font-size:11px}
+    .seg button{padding:6px 10px;font-size:12px}
+
+    /* Sparklines: 2 across instead of 3 */
+    .sparkcol{grid-template-columns:repeat(2,1fr);gap:8px}
+    .sparkcard{min-height:120px;padding:8px 10px 4px}
+    .sparkcard canvas{height:80px !important}
+    .refresh{padding:10px 12px}
+    .refresh .val{font-size:15px}
+
+    /* KPI frame */
+    .kpiframe{padding:14px 12px 12px}
+    .kpiframe-head{margin-bottom:10px}
+    .kpiframe-head .eyebrow-meta{display:none}
+    .kpi{padding:9px 12px;gap:8px}
+    .kpi .k{font-size:10px;letter-spacing:.1em}
+    .kpi .v{font-size:22px}
+    .kpi.primary .v{font-size:26px}
+    .kpi .delta{font-size:10px}
+    .kpi .delta .label{font-size:8px}
+    .kpis{min-height:auto;gap:5px}
+
+    /* Big bar chart card and bar cards */
+    .dimchart{min-height:320px;padding:12px}
+    .dimchart .head .ttl{font-size:14px}
+    .barcard{min-height:300px;padding:12px}
+    .barcard .head .ttl{font-size:14px}
+
+    /* Tables — let metrics tables scroll horizontally when they get cramped */
+    .tablecard{overflow-x:auto}
+    table.metrics{min-width:780px}
+
+    /* Pivot scrolls horizontally (already does); just shrink type */
+    .pivot{font-size:11px}
+    .pivot tbody td:first-child{padding-left:10px;font-size:11px}
+
+    /* YoY tables already get horizontal scroll via the global rule above */
+    .yoytable .head{padding:10px 12px}
+    .yoytable .head .ttl{font-size:13px}
+
+    /* Footer */
+    .footer{flex-direction:column;gap:4px;align-items:flex-start;font-size:10px}
+  }
 </style>
 </head>
 <body>
@@ -748,47 +871,65 @@
    1. DOMAIN MODEL (NYU SPS divisions, programs, areas, platforms)
    ============================================================= */
 const DIVISIONS = [
-  {code:"DPB",   name:"Programs in Business",            weight:0.34},
-  {code:"DAUS",  name:"Applied Undergraduate Studies",   weight:0.12},
-  {code:"CGA",   name:"Center for Global Affairs",       weight:0.14},
-  {code:"CPWM",  name:"Publishing, Writing, Media",      weight:0.07},
+  {code:"DPB",   name:"Programs in Business",            weight:0.31},
+  {code:"DAUS",  name:"Applied Undergraduate Studies",   weight:0.16},
+  {code:"CGA",   name:"Center for Global Affairs",       weight:0.13},
+  {code:"CPWM",  name:"Publishing, Writing, Media",      weight:0.06},
   {code:"TCOH",  name:"Tisch Center of Hospitality",     weight:0.12},
-  {code:"TIGS",  name:"Tisch Institute for Global Sport",weight:0.08},
+  {code:"TIGS",  name:"Tisch Institute for Global Sport",weight:0.09},
   {code:"SCHK",  name:"Schack Institute of Real Estate", weight:0.13},
 ];
 const AREAS = [
-  {code:"BUS",  name:"Business",             weight:0.36},
-  {code:"COMM", name:"Communications",       weight:0.14},
-  {code:"INTL", name:"International Affairs",weight:0.14},
+  {code:"BUS",  name:"Business",             weight:0.33},
+  {code:"COMM", name:"Communications",       weight:0.13},
+  {code:"INTL", name:"International Affairs",weight:0.13},
   {code:"RE",   name:"Real Estate",          weight:0.13},
-  {code:"HOSP", name:"Hospitality",          weight:0.10},
-  {code:"SPRT", name:"Sport",                weight:0.07},
+  {code:"HOSP", name:"Hospitality",          weight:0.11},
+  {code:"SPRT", name:"Sport",                weight:0.08},
   {code:"PWM",  name:"Publishing/Writing",   weight:0.04},
-  {code:"UG",   name:"Undergraduate",        weight:0.02},
+  {code:"UG",   name:"Undergraduate",        weight:0.09},
 ];
 const PROGRAMS = [
-  {code:"IM",   name:"MS Integrated Marketing",          division:"DPB",  area:"COMM"},
-  {code:"PRCC", name:"MS Public Relations & Corp Comm",  division:"DPB",  area:"COMM"},
-  {code:"EMSC", name:"Exec MS Marketing & Strat Comm",   division:"DPB",  area:"COMM"},
-  {code:"HCM",  name:"MS Human Capital Management",      division:"DPB",  area:"BUS"},
-  {code:"HCAT", name:"MS Human Capital Analytics & Tech",division:"DPB",  area:"BUS"},
-  {code:"MA",   name:"MS Management & Analytics",        division:"DPB",  area:"BUS"},
-  {code:"PM",   name:"MS Project Management",            division:"DPB",  area:"BUS"},
-  {code:"FP",   name:"MS Financial Planning",            division:"DPB",  area:"BUS"},
-  {code:"EM",   name:"MS Entrepreneurship & Management", division:"DPB",  area:"BUS"},
-  {code:"ECOC", name:"MS Exec Coaching & Org Consulting",division:"DPB",  area:"BUS"},
-  {code:"GA",   name:"MS Global Affairs",                division:"CGA",  area:"INTL"},
-  {code:"GSCC", name:"MS Global Sec, Conflict & Cyber",  division:"CGA",  area:"INTL"},
-  {code:"PUB",  name:"MS Publishing",                    division:"CPWM", area:"PWM"},
-  {code:"PRWR", name:"MS Professional Writing",          division:"CPWM", area:"PWM"},
-  {code:"TRANS",name:"MS Translation & Interpreting",    division:"CPWM", area:"PWM"},
-  {code:"GHM",  name:"MS Global Hospitality Mgmt",       division:"TCOH", area:"HOSP"},
-  {code:"EVT",  name:"MS Event Management",              division:"TCOH", area:"HOSP"},
-  {code:"TTM",  name:"MS Travel & Tourism Mgmt",         division:"TCOH", area:"HOSP"},
-  {code:"GSP",  name:"MS Global Sport",                  division:"TIGS", area:"SPRT"},
-  {code:"SB",   name:"MS Sports Business",               division:"TIGS", area:"SPRT"},
-  {code:"REM",  name:"MS Real Estate",                   division:"SCHK", area:"RE"},
-  {code:"RED",  name:"MS Real Estate Development",       division:"SCHK", area:"RE"},
+  // Division of Programs in Business — Master's
+  {code:"IM",   name:"MS Integrated Marketing",                division:"DPB",  area:"COMM"},
+  {code:"PRCC", name:"MS Public Relations & Corp Comm",        division:"DPB",  area:"COMM"},
+  {code:"EMSC", name:"Exec MS Marketing & Strat Comm",         division:"DPB",  area:"COMM"},
+  {code:"HCM",  name:"MS Human Capital Management",            division:"DPB",  area:"BUS"},
+  {code:"HCAT", name:"MS Human Capital Analytics & Tech",      division:"DPB",  area:"BUS"},
+  {code:"MA",   name:"MS Management & Analytics",              division:"DPB",  area:"BUS"},
+  {code:"PM",   name:"MS Project Management",                  division:"DPB",  area:"BUS"},
+  {code:"FP",   name:"MS Financial Planning",                  division:"DPB",  area:"BUS"},
+  {code:"EM",   name:"MS Entrepreneurship & Management",       division:"DPB",  area:"BUS"},
+  {code:"ECOC", name:"MS Exec Coaching & Org Consulting",      division:"DPB",  area:"BUS"},
+  // Center for Global Affairs — Master's
+  {code:"GA",   name:"MS Global Affairs",                      division:"CGA",  area:"INTL"},
+  {code:"GSCC", name:"MS Global Security, Conflict & Cyber",   division:"CGA",  area:"INTL"},
+  // Publishing, Writing, Media — Master's
+  {code:"PUB",  name:"MS Publishing",                          division:"CPWM", area:"PWM"},
+  {code:"PRWR", name:"MS Professional Writing",                division:"CPWM", area:"PWM"},
+  {code:"TRANS",name:"MS Translation & Interpreting",          division:"CPWM", area:"PWM"},
+  // Tisch Center of Hospitality — Master's & Bachelor's
+  {code:"GHM",  name:"MS Global Hospitality Mgmt",             division:"TCOH", area:"HOSP"},
+  {code:"EVT",  name:"MS Event Management",                    division:"TCOH", area:"HOSP"},
+  {code:"TTM",  name:"MS Travel & Tourism Mgmt",               division:"TCOH", area:"HOSP"},
+  {code:"BSHTTM",name:"BS Hospitality, Travel & Tourism Mgmt", division:"TCOH", area:"HOSP"},
+  // Tisch Institute for Global Sport — Master's & Bachelor's
+  {code:"GSP",  name:"MS Global Sport",                        division:"TIGS", area:"SPRT"},
+  {code:"SB",   name:"MS Sports Business",                     division:"TIGS", area:"SPRT"},
+  {code:"BSSM", name:"BS Sport Management",                    division:"TIGS", area:"SPRT"},
+  // Schack Institute of Real Estate — Master's & Bachelor's
+  {code:"REM",  name:"MS Real Estate",                         division:"SCHK", area:"RE"},
+  {code:"RED",  name:"MS Real Estate Development",             division:"SCHK", area:"RE"},
+  {code:"BSRE", name:"BS Real Estate",                         division:"SCHK", area:"RE"},
+  // Division of Applied Undergraduate Studies — Bachelor's
+  {code:"BSLM", name:"BS Leadership & Management",             division:"DAUS", area:"UG"},
+  {code:"BSIST",name:"BS Information Systems & Technology",    division:"DAUS", area:"UG"},
+  {code:"BASS", name:"BA Social Sciences",                     division:"DAUS", area:"UG"},
+  // Division of Applied Undergraduate Studies — Associate's
+  {code:"AASB", name:"AAS Business",                           division:"DAUS", area:"UG"},
+  {code:"AASIST",name:"AAS Information Systems & Technology",  division:"DAUS", area:"UG"},
+  {code:"AASH", name:"AAS Hospitality Management",             division:"DAUS", area:"UG"},
+  {code:"AALA", name:"AA Liberal Arts",                        division:"DAUS", area:"UG"},
 ];
 const PLATFORMS = [
   {code:"GS",  name:"Google Search",  weight:0.50},
@@ -1929,6 +2070,23 @@ window.addEventListener("DOMContentLoaded", () => {
   hookDate();
   hookReset();
   renderAll();
+
+  // Re-render on resize / orientation change so canvases reflow.
+  // Debounced and gated on a meaningful width change so we don't thrash on iOS scroll.
+  let lastW = window.innerWidth;
+  let resizeT = null;
+  window.addEventListener("resize", () => {
+    if(Math.abs(window.innerWidth - lastW) < 4) return;
+    lastW = window.innerWidth;
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      // Destroy charts that depend on container height so they re-size cleanly
+      ["bigBar","platform","campaign","p2pa"].forEach(k => {
+        if(charts[k]){ charts[k].destroy(); delete charts[k]; }
+      });
+      renderAll();
+    }, 180);
+  });
 });
 </script>
 
